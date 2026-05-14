@@ -28,47 +28,43 @@ export class AttendanceService {
             "7": "SUNDAY"
         }
 
-        const lessonGroup = await this.prisma.lesson.findFirst({
+        const group = await this.prisma.group.findFirst({
             where: {
-                id: payload.lesson_id
+                id: payload.group_id,
+                status: Status.active
             },
             select: {
-                created_at:true,
-                groups: {
+                start_time: true,
+                start_date: true,
+                GroupTeacher: {
                     select: {
-                        start_time: true,
-                        start_date: true,
-                        GroupTeacher: {
-                            select: {
-                                teacher_id: true
-                            }
-                        },
-                        week_day: true,
-                        courses: {
-                            select: {
-                                duration_hours: true
-                            }
-                        },
-                        studentGroups: {
-                            where: {
-                                student_id: payload.student_id,
-                                status: Status.active
-                            }
-                        }
+                        teacher_id: true
+                    }
+                },
+                week_day: true,
+                courses: {
+                    select: {
+                        duration_hours: true
+                    }
+                },
+                studentGroups: {
+                    where: {
+                        student_id: payload.student_id,
+                        status: Status.active
                     }
                 }
             }
         })
 
-        if (!lessonGroup?.groups.studentGroups.length) {
-            throw new BadRequestException("Student not found whth this group")
+        if (!group?.studentGroups.length) {
+            throw new BadRequestException("Student not found within this group")
         }
 
-        if (currentUser.role == Role.TEACHER && !lessonGroup?.groups.GroupTeacher.some(gt => gt.teacher_id == currentUser.id)) {
-            throw new ForbiddenException("Is not your lesson")
+        if (currentUser.role == Role.TEACHER && !group?.GroupTeacher.some(gt => gt.teacher_id == currentUser.id)) {
+            throw new ForbiddenException("Is not your group/lesson")
         }
 
-        const week_day = lessonGroup?.groups.week_day
+        const week_day = group?.week_day
         const nowDate = new Date()
         const day = nowDate.getDay()
 
@@ -81,11 +77,12 @@ export class AttendanceService {
             return h * 60 + m;
         };
 
-        const startMinute = timeToMinutes(lessonGroup!.groups.start_time);
-        const endMinute = startMinute + lessonGroup!.groups.courses.duration_hours * 60;
+        const startMinute = timeToMinutes(group!.start_time);
+        const endMinute = startMinute + group!.courses.duration_hours * 60;
         const nowMinute = nowDate.getHours() * 60 + nowDate.getMinutes()
 
-        if (!(lessonGroup.created_at.getTime() < Date.now()) && startMinute > nowMinute ) {
+        // Checking if it's a past date or today's time
+        if (group.start_date.getTime() > Date.now() && startMinute > nowMinute ) {
             throw new BadRequestException("Dars hali boshlanmadi")
         }
 

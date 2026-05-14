@@ -1,4 +1,4 @@
-import { Body, Controller, Get, ParseIntPipe, Post, Query, Req, UnsupportedMediaTypeException, UploadedFile, UseGuards, UseInterceptors } from '@nestjs/common';
+import { Body, Controller, Get, Param, ParseIntPipe, Post, Query, Req, UnsupportedMediaTypeException, UploadedFile, UseGuards, UseInterceptors } from '@nestjs/common';
 import { Role, StudentStatus } from '@prisma/client';
 import { StudentsService } from './students.service';
 import { AuthGuard } from 'src/common/guards/jwt-auth.guard';
@@ -9,6 +9,7 @@ import { CreateStudentDto } from './dto/create.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
 import { PaginationDto } from './dto/pagination.dto';
+import { CreateHomeworkAnswerDto } from './dto/create.homework.dto';
 
 @ApiBearerAuth()
 @Controller('students')
@@ -83,5 +84,40 @@ export class StudentsController {
         @UploadedFile() file?: Express.Multer.File
     ) {
         return this.studentService.createStudent(payload, file?.filename)
+    }
+
+    @ApiOperation({
+        summary: `${Role.STUDENT}`,
+    })
+    @UseGuards(AuthGuard, RolesGuard)
+    @Roles(Role.STUDENT) 
+    @ApiConsumes("multipart/form-data")
+    @ApiBody({
+        schema: {
+            type: 'object',
+            properties: {
+                title: { type: 'string', example: "Homework Answer" },
+                file: { type: 'string', format: 'binary' },
+            }
+        }
+    })
+    @UseInterceptors(FileInterceptor("file", {
+        storage: diskStorage({
+            destination: "./src/uploads/files",
+            filename: (req, file, cb) => {
+                const filename = Date.now() + "." + file.mimetype.split("/")[1]
+                cb(null, filename)
+            } 
+        })
+    })) 
+    @Post("homeworkAnswer/:homeworkId") 
+    createHomeworkAnswer(
+        @Param("homeworkId", ParseIntPipe) homeworkId : number, 
+        @Body() payload: CreateHomeworkAnswerDto,  
+        @Req() req : Request,
+        @UploadedFile() file?: Express.Multer.File,  
+    ) { 
+        console.log(payload,homeworkId,"controller",file)
+        return this.studentService.createHomeworkAnswer(homeworkId,req['user'],payload,file?.filename)
     }
 }

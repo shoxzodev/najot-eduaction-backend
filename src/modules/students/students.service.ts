@@ -5,6 +5,7 @@ import * as bcrypt from "bcrypt"
 import { Status } from '@prisma/client';
 import { EmailService } from 'src/common/email/email.service';
 import { PaginationDto } from './dto/pagination.dto';
+import { CreateHomeworkAnswerDto } from './dto/create.homework.dto';
 
 @Injectable()
 export class StudentsService {
@@ -135,6 +136,44 @@ export class StudentsService {
         return {
             success:true,
             message:"Student created"
+        }
+    }
+
+    async createHomeworkAnswer(homeworkId : number, user : {id : number}, payload : CreateHomeworkAnswerDto, filename? : string){
+        console.log(payload)
+        const existHomework = await this.prisma.homework.findFirst({
+            where:{
+                id:homeworkId 
+            }
+        })
+
+        if(!existHomework){
+            throw new ConflictException("Homework not found")
+        } 
+
+        const existHomeworkAnswer = await this.prisma.homeworkAnswerStudent.findFirst({
+            where:{
+                homework_id:homeworkId,
+                student_id:user.id
+            }
+        })
+
+        if(existHomeworkAnswer){
+            throw new ConflictException("Homework answer already exists")
+        }
+
+        await this.prisma.homeworkAnswerStudent.create({
+            data:{
+                homework_id:homeworkId,
+                student_id:user.id,
+                file:filename ?? null,
+                title:payload.title,
+            }
+        })
+
+        return {
+            success:true,
+            message:"Homework answer created"
         }
     }
 }

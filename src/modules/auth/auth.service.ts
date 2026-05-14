@@ -9,7 +9,7 @@ import { Role } from '@prisma/client';
 export class AuthService {
     constructor(
         private prisma: PrismaService,
-        private jwtService: JwtService 
+        private jwtService: JwtService
     ) { }
 
     async userLogin(payload: LoginDto) {
@@ -20,13 +20,52 @@ export class AuthService {
         })
 
         if (!existUser) {
-            throw new UnauthorizedException("Invalid phone or password")
+            const existStudent = await this.prisma.student.findUnique({
+                where: {
+                    phone: payload.phone
+                }
+            })
+            if (!existStudent) {
+                const existteacher = await this.prisma.teacher.findUnique({
+                    where: {
+                        phone: payload.phone
+                    }
+                })
+
+                if(!existteacher){
+                    throw new UnauthorizedException("Invalid phone or password")
+                }
+
+                const isMatch = await bcrypt.compare(payload.password, existteacher.password)
+                if (!isMatch) {
+                    throw new UnauthorizedException("Invalid username or password")
+                }
+
+                return {
+                    success: true,
+                    message: "You're logged",
+                    accessToken: this.jwtService.sign({ id: existteacher.id, email: existteacher.email, role:Role.TEACHER })
+                }
+            }
+
+            const isMatch = await bcrypt.compare(payload.password, existStudent.password)
+            if (!isMatch) {
+                throw new UnauthorizedException("Invalid username or password")
+            }
+
+            return {
+                success: true,
+                message: "You're logged",
+                accessToken: this.jwtService.sign({ id: existStudent.id, email: existStudent.email, role: Role.STUDENT })
+            }
+
         }
+
         const isMatch = await bcrypt.compare(payload.password, existUser.password)
         if (!isMatch) {
             throw new UnauthorizedException("Invalid username or password")
         }
-
+ 
         return {
             success: true,
             message: "You're logged",
