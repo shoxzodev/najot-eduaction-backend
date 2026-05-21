@@ -44,6 +44,42 @@ export class TeachersService {
         }
     }
 
+    async getArchiveTeachers(){
+        const teachers = await this.prisma.teacher.findMany({
+            where:{
+                status:Status.inactive
+            },
+            select:{
+                id:true,
+                full_name:true,
+                phone:true,
+                photo:true,
+                email:true,
+                address:true,
+                created_at:true,
+                GroupTeacher:{
+                    select:{
+                        Group:{
+                            select:{
+                                name:true
+                            }
+                        }
+                    }
+                }
+            }
+        })
+
+        const dataFormatter = teachers.map(el => ({
+            ...el,
+            groups: el.GroupTeacher.map(gt => gt.Group.name)
+        }))
+
+        return {
+            success:true,
+            data:dataFormatter
+        }
+    }
+
     async createTeacher(payload : CreateTeacherDto, filename? : string){
 
         const existTeacher = await this.prisma.teacher.findFirst({
@@ -91,6 +127,33 @@ export class TeachersService {
         return {
             success:true,
             message:"Teacher created"
+        }
+    }
+
+    async deleteTeacher(id:number){
+        const existTeacher = await this.prisma.teacher.findUnique({
+            where:{
+                id,
+                status:Status.active
+            }
+        })
+
+        if(!existTeacher){
+            throw new NotFoundException("Teacher not found")
+        }
+
+        await this.prisma.teacher.update({
+            where:{
+                id
+            },
+            data:{
+                status:Status.inactive
+            }
+        })
+
+        return {
+            success:true,
+            message:"Teacher deleted"
         }
     }
 }

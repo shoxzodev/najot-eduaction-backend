@@ -18,6 +18,17 @@ export class RoomsService {
         }
     }
 
+    async getArchiveRooms(){
+        const rooms = await this.prisma.room.findMany({
+            where:{status:Status.inactive}
+        })
+
+        return {
+            success : true,
+            data:rooms
+        }
+    }
+
     async createRoom(payload : CreateRoomDto){
 
         const existRoom = await this.prisma.room.findUnique({
@@ -35,6 +46,26 @@ export class RoomsService {
         return {
             success : true,
             message : "Room created"
+        }
+    }
+
+    async deleteRoom(id:number){
+        const existRoom = await this.prisma.room.findUnique({
+            where:{id}
+        })
+
+        if(!existRoom) {
+            throw new ConflictException("Room not found")
+        }
+
+        await this.prisma.room.update({
+            where:{id},
+            data:{status:Status.inactive}
+        })
+
+        return {
+            success : true,
+            message : "Room deleted"
         }
     }
 }

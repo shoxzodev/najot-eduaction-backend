@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, ParseIntPipe, Post, Query, Req, UnsupportedMediaTypeException, UploadedFile, UseGuards, UseInterceptors } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, ParseIntPipe, Post, Query, Req, UnsupportedMediaTypeException, UploadedFile, UseGuards, UseInterceptors } from '@nestjs/common';
 import { Role, StudentStatus } from '@prisma/client';
 import { StudentsService } from './students.service';
 import { AuthGuard } from 'src/common/guards/jwt-auth.guard';
@@ -37,6 +37,16 @@ export class StudentsController {
     ) {
         return this.studentService.getAllStudents(pagination)
     }
+
+    @ApiOperation({
+        summary: `${Role.SUPERADMIN}, ${Role.ADMIN}`,
+    })
+    @UseGuards(AuthGuard, RolesGuard)
+    @Roles(Role.SUPERADMIN, Role.ADMIN)
+    @Get("archive")
+    getArchiveStudents(){
+        return this.studentService.getArchiveStudents()
+    } 
 
     @ApiOperation({
         summary: `${Role.SUPERADMIN}, ${Role.ADMIN}`,
@@ -120,4 +130,14 @@ export class StudentsController {
         console.log(payload,homeworkId,"controller",file)
         return this.studentService.createHomeworkAnswer(homeworkId,req['user'],payload,file?.filename)
     }
+
+    @ApiOperation({
+        summary: `${Role.SUPERADMIN}, ${Role.ADMIN}`,
+    })
+    @UseGuards(AuthGuard, RolesGuard)
+    @Roles(Role.SUPERADMIN, Role.ADMIN)
+    @Delete("/:id")
+    deleteStudent(@Param("id", ParseIntPipe) id: number) {
+        return this.studentService.deleteStudent(id)
+    }   
 }

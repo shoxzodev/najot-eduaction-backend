@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, ParseIntPipe, Post, Query, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, ParseIntPipe, Post, Query, UseGuards } from '@nestjs/common';
 import { GroupsService } from './groups.service';
 import { CreateGroupDto } from './dto/create.dto';
 import { CreateLessonDto } from './dto/create-lesson.dto';
@@ -20,6 +20,14 @@ export class GroupsController {
     @Get("one/students/:groupId")
     getGroupOne(@Param("groupId", ParseIntPipe) groupId: number) {
         return this.groupService.getGroupOne(groupId)
+    }
+
+    @ApiOperation({ summary: `${Role.SUPERADMIN}, ${Role.ADMIN}` })
+    @UseGuards(AuthGuard, RolesGuard)
+    @Roles(Role.SUPERADMIN, Role.ADMIN)
+    @Get("archive")
+    getArchiveGroups() {
+        return this.groupService.getArchiveGroups()
     }
 
     @ApiOperation({ summary: `${Role.SUPERADMIN}, ${Role.ADMIN}` })
@@ -73,4 +81,9 @@ export class GroupsController {
     getGroupById(@Param("groupId", ParseIntPipe) groupId: number) {
         return this.groupService.getGroupById(groupId)
     }
+
+    @Delete(":id")
+    deleteGroup(@Param("id", ParseIntPipe) id: number) {
+        return this.groupService.deleteGroup(id)
+    } 
 }

@@ -2,7 +2,7 @@ import { ConflictException, Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/core/database/prisma.service';
 import { CreateStudentDto } from './dto/create.dto';
 import * as bcrypt from "bcrypt"
-import { Status } from '@prisma/client';
+import { Status, StudentStatus } from '@prisma/client';
 import { EmailService } from 'src/common/email/email.service';
 import { PaginationDto } from './dto/pagination.dto';
 import { CreateHomeworkAnswerDto } from './dto/create.homework.dto';
@@ -64,6 +64,53 @@ export class StudentsService {
             },
             skip:(limit? +limit : 10) * (page ? +page - 1 : 0),
             take:limit? +limit : 10
+        })
+
+        const formattedStudents = students.map(student => {
+            return {
+                id:student.id,
+                full_name:student.full_name,
+                phone:student.phone,
+                photo:student.photo,
+                email:student.email, 
+                address:student.address,
+                birth_date:student.birth_date,
+                created_at:student.created_at, 
+                groups:student.studentGroups.map(group => group.groups)
+            }
+        })
+
+        return {
+            success:true,
+            data:formattedStudents
+        }
+    }
+
+    async getArchiveStudents(){
+        const students = await this.prisma.student.findMany({
+            where:{
+                status:StudentStatus.inactive
+            },
+            select:{
+                id:true,
+                full_name:true,
+                phone:true,
+                photo:true,
+                email:true,
+                address:true,
+                birth_date:true,
+                created_at:true,
+                studentGroups:{
+                    select:{
+                        groups:{
+                            select:{
+                                id:true,
+                                name:true
+                            }
+                        }
+                    }
+                }
+            }
         })
 
         const formattedStudents = students.map(student => {
@@ -174,6 +221,26 @@ export class StudentsService {
         return {
             success:true,
             message:"Homework answer created"
+        }
+    }
+
+    async deleteStudent(id:number){
+        const existStudent = await this.prisma.student.findUnique({
+            where:{id}
+        })
+
+        if(!existStudent) {
+            throw new ConflictException("Student not found")
+        }
+
+        await this.prisma.student.update({
+            where:{id},
+            data:{status:StudentStatus.inactive}
+        })
+ 
+        return {
+            success : true,
+            message : "Student deleted"
         }
     }
 }

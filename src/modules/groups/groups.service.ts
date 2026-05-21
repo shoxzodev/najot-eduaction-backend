@@ -49,6 +49,41 @@ export class GroupsService {
         }
     }
 
+    async getArchiveGroups() {
+        const groups = await this.prisma.group.findMany({
+            where: {
+                status: Status.inactive
+            },
+            select: {
+                id: true,
+                name: true,
+                max_student: true,
+                start_date: true,
+                start_time: true,
+                week_day: true,
+                courses: {
+                    select: {
+                        id: true,
+                        name: true,
+                        duration_month: true
+                    }
+                },
+                rooms: {
+                    select: {
+                        id: true,
+                        name: true
+                    }
+                },
+                created_at: true
+            }
+        })
+
+        return {
+            success: true,
+            data: groups
+        }
+    }
+
     async getAllGroups(search: filterDto) {
         const { groupName, max_student } = search
         let searchWhere = {
@@ -565,5 +600,32 @@ export class GroupsService {
                 attendance: attendanceList
             }
         };
+    }
+
+    async deleteGroup(id:number){
+        const existGroup = await this.prisma.group.findUnique({
+            where:{
+                id,
+                status:Status.active
+            }
+        })
+
+        if(!existGroup){
+            throw new NotFoundException("Group not found")
+        }
+
+        await this.prisma.group.update({
+            where:{
+                id
+            },
+            data:{
+                status:Status.inactive
+            }
+        })
+
+        return {
+            success:true,
+            message:"Group deleted"
+        }
     }
 }

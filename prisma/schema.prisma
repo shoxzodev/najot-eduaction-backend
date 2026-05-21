@@ -276,4 +276,6 @@ enum GroupStatus {
   planned
   active
   completed
-}
+  inactive
+} 
+ 
