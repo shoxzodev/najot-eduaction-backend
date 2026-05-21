@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, ParseIntPipe, Post, Query, Req, UnsupportedMediaTypeException, UploadedFile, UseGuards, UseInterceptors } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, ParseIntPipe, Patch, Post, Query, Req, UnsupportedMediaTypeException, UploadedFile, UseGuards, UseInterceptors } from '@nestjs/common';
 import { Role, StudentStatus } from '@prisma/client';
 import { StudentsService } from './students.service';
 import { AuthGuard } from 'src/common/guards/jwt-auth.guard';
@@ -6,6 +6,7 @@ import { RolesGuard } from 'src/common/guards/role.guard';
 import { Roles } from 'src/common/decorators/role';
 import { ApiBearerAuth, ApiBody, ApiConsumes, ApiOperation } from '@nestjs/swagger';
 import { CreateStudentDto } from './dto/create.dto';
+import { UpdateStudentDto } from './dto/update.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
 import { PaginationDto } from './dto/pagination.dto';
@@ -47,6 +48,16 @@ export class StudentsController {
     getArchiveStudents(){
         return this.studentService.getArchiveStudents()
     } 
+
+    @ApiOperation({
+        summary: `${Role.SUPERADMIN}, ${Role.ADMIN}`,
+    })
+    @UseGuards(AuthGuard, RolesGuard)
+    @Roles(Role.SUPERADMIN, Role.ADMIN)
+    @Get("one/:id")
+    getOneStudent(@Param("id", ParseIntPipe) id: number) {
+        return this.studentService.getOneStudent(id);
+    }
 
     @ApiOperation({
         summary: `${Role.SUPERADMIN}, ${Role.ADMIN}`,
@@ -140,4 +151,37 @@ export class StudentsController {
     deleteStudent(@Param("id", ParseIntPipe) id: number) {
         return this.studentService.deleteStudent(id)
     }   
+
+    @ApiOperation({
+        summary: `${Role.SUPERADMIN}, ${Role.ADMIN}`,
+    })
+    @UseGuards(AuthGuard, RolesGuard)
+    @Roles(Role.SUPERADMIN, Role.ADMIN)
+    @Patch("/:id")
+    @ApiConsumes("multipart/form-data")
+    @UseInterceptors(FileInterceptor("photo", {
+        storage: diskStorage({
+            destination: "./src/uploads",
+            filename: (req, file, cb) => {
+                const filename = Date.now() + "." + file.mimetype.split("/")[1]
+                cb(null, filename)
+            }
+        }),
+        fileFilter:(req,file,cb) =>{
+            const existFile = ["png","jpg","jpeg"]
+
+            if(!existFile.includes(file.mimetype.split("/")[1])){
+                cb(new UnsupportedMediaTypeException(),false)
+            }
+
+            cb(null,true)
+        }
+    }))
+    updateStudent(
+        @Param("id", ParseIntPipe) id: number,
+        @Body() payload: UpdateStudentDto,
+        @UploadedFile() file?: Express.Multer.File
+    ) {
+        return this.studentService.updateStudent(id, payload, file?.filename)
+    }
 }

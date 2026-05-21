@@ -1,6 +1,7 @@
 import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from 'src/core/database/prisma.service';
 import { CreateGroupDto } from './dto/create.dto';
+import { UpdateGroupDto } from './dto/update.dto';
 import { CreateLessonDto } from './dto/create-lesson.dto';
 import { Status } from '@prisma/client';
 import { filterDto } from './dto/search';
@@ -165,6 +166,81 @@ export class GroupsService {
             success: true,
             data: dataFormatter
         }
+    }
+
+    async getOneGroup(id: number) {
+        const group = await this.prisma.group.findUnique({
+            where: { id },
+            select: {
+                id: true,
+                name: true,
+                max_student: true,
+                start_date: true,
+                start_time: true,
+                week_day: true,
+                courses: {
+                    select: {
+                        id: true,
+                        name: true,
+                        duration_month: true
+                    }
+                },
+                rooms: {
+                    select: {
+                        id: true,
+                        name: true
+                    }
+                },
+                GroupTeacher: {
+                    select: {
+                        Teacher: {
+                            select: {
+                                id: true,
+                                full_name: true
+                            }
+                        }
+                    }
+                },
+                studentGroups: {
+                    select: {
+                        students: {
+                            select: {
+                                id: true,
+                                full_name: true
+                            }
+                        }
+                    }
+                }
+            }
+        });
+
+        if (!group) {
+            throw new NotFoundException("Group not found");
+        }
+
+        const dataFormatter = {
+            id: group.id,
+            name: group.name,
+            start_date: group.start_date,
+            start_time: group.start_time,
+            week_day: group.week_day,
+            course: {
+                name: group.courses.name,
+                duration_month: group.courses.duration_month,
+            },
+            room: group.rooms.name,
+            teachers: group.GroupTeacher.map(gt => ({
+                id: gt.Teacher.id,
+                full_name: gt.Teacher.full_name
+            })),
+            student_count: group.studentGroups.length,
+            students: group.studentGroups.map(sg => sg.students)
+        };
+
+        return {
+            success: true,
+            data: dataFormatter
+        };
     }
 
     async getGroupById(groupId: number) {
@@ -627,5 +703,77 @@ export class GroupsService {
             success:true,
             message:"Group deleted"
         }
+    }
+
+    async updateGroup(id: number, payload: UpdateGroupDto) {
+        const existGroup = await this.prisma.group.findUnique({
+            where: { id }
+        });
+
+        if (!existGroup) {
+            throw new NotFoundException("Group not found");
+        }
+
+        if (payload.name) {
+            const nameExist = await this.prisma.group.findUnique({
+                where: { name: payload.name }
+            });
+            if (nameExist && nameExist.id !== id) {
+                throw new ConflictException("Group name already exists");
+            }
+        }
+
+        const { teachers, students, ...groupData } = payload;
+
+        if (teachers !== undefined) {
+            const existingTeachers = await this.prisma.teacher.findMany({
+                where: { id: { in: teachers } }
+            });
+
+            if (existingTeachers.length !== teachers?.length) {
+                throw new NotFoundException("Teacher is not found");
+            }
+            
+            await this.prisma.groupTeacher.deleteMany({
+                where: { group_id: id }
+            });
+        }
+
+        if (students !== undefined) {
+            const existingStudents = await this.prisma.student.findMany({
+                where: { id: { in: students } }
+            });
+
+            if (existingStudents.length !== students?.length) {
+                throw new NotFoundException("Student is not found");
+            }
+            
+            await this.prisma.studentGroup.deleteMany({
+                where: { group_id: id }
+            });
+        }
+
+        await this.prisma.group.update({
+            where: { id },
+            data: {
+                ...groupData,
+                ...(payload.start_date && { start_date: new Date(payload.start_date) }),
+                ...(teachers !== undefined && {
+                    GroupTeacher: teachers?.length ? {
+                        create: teachers?.map(tId => ({ teacher_id: tId }))
+                    } : undefined
+                }),
+                ...(students !== undefined && {
+                    studentGroups: students?.length ? {
+                        create: students?.map(sId => ({ student_id: sId }))
+                    } : undefined
+                })
+            }
+        });
+
+        return {
+            success: true,
+            message: "Group updated"
+        };
     }
 }

@@ -1,6 +1,7 @@
-import { Body, Controller, Delete, Get, Param, ParseIntPipe, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, ParseIntPipe, Patch, Post, UseGuards } from '@nestjs/common';
 import { RoomsService } from './rooms.service';
 import { CreateRoomDto } from './dto/create.dto';
+import { UpdateRoomDto } from './dto/update.dto';
 import { Roles } from 'src/common/decorators/role';
 import { Role } from '@prisma/client';
 import { AuthGuard } from 'src/common/guards/jwt-auth.guard';
@@ -33,6 +34,16 @@ export class RoomsController {
     }
 
     @ApiOperation({
+        summary: `${Role.SUPERADMIN}, ${Role.ADMIN}`
+    })
+    @UseGuards(AuthGuard, RolesGuard)
+    @Roles(Role.SUPERADMIN, Role.ADMIN)
+    @Get("one/:id")
+    getOneRoom(@Param("id", ParseIntPipe) id: number) {
+        return this.roomService.getOneRoom(id);
+    }
+
+    @ApiOperation({
         summary:`${Role.SUPERADMIN}, ${Role.ADMIN}`
     })
     @UseGuards(AuthGuard,RolesGuard)
@@ -50,5 +61,15 @@ export class RoomsController {
     @Delete("/:id")
     deleteRoom(@Param("id", ParseIntPipe) id: number){
         return this.roomService.deleteRoom(id)
+    }
+
+    @ApiOperation({
+        summary:`${Role.SUPERADMIN}, ${Role.ADMIN}`
+    })
+    @UseGuards(AuthGuard,RolesGuard)
+    @Roles(Role.SUPERADMIN, Role.ADMIN)
+    @Patch("/:id")
+    updateRoom(@Param("id", ParseIntPipe) id: number, @Body() payload: UpdateRoomDto){
+        return this.roomService.updateRoom(id, payload)
     }
 }

@@ -1,5 +1,6 @@
-import { ConflictException, Injectable } from '@nestjs/common';
+import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import { CreateCourseDto } from './dto/create.dto';
+import { UpdateCourseDto } from './dto/update.dto';
 import { Status } from '@prisma/client';
 import { PrismaService } from 'src/core/database/prisma.service';
 
@@ -28,6 +29,21 @@ export class CoursesService {
             data:courses
         }
     } 
+
+    async getOneCourse(id: number) {
+        const course = await this.prisma.course.findUnique({
+            where: { id }
+        });
+
+        if (!course) {
+            throw new NotFoundException("Course not found");
+        }
+
+        return {
+            success: true,
+            data: course
+        };
+    }
 
     async createCourse(payload: CreateCourseDto) {
 
@@ -67,5 +83,34 @@ export class CoursesService {
             success : true,
             message : "Course deleted"
         }
+    }
+
+    async updateCourse(id: number, payload: UpdateCourseDto) {
+        const existCourse = await this.prisma.course.findUnique({
+            where: { id }
+        });
+
+        if (!existCourse) {
+            throw new NotFoundException("Course not found");
+        }
+
+        if (payload.name) {
+            const nameExist = await this.prisma.course.findUnique({
+                where: { name: payload.name }
+            });
+            if (nameExist && nameExist.id !== id) {
+                throw new ConflictException("Course already exists");
+            }
+        }
+
+        await this.prisma.course.update({
+            where: { id },
+            data: payload
+        });
+
+        return {
+            success: true,
+            message: "Course updated"
+        };
     }
 }

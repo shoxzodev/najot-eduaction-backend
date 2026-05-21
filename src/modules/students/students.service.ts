@@ -1,6 +1,7 @@
-import { ConflictException, Injectable } from '@nestjs/common';
+import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from 'src/core/database/prisma.service';
 import { CreateStudentDto } from './dto/create.dto';
+import { UpdateStudentDto } from './dto/update.dto';
 import * as bcrypt from "bcrypt"
 import { Status, StudentStatus } from '@prisma/client';
 import { EmailService } from 'src/common/email/email.service';
@@ -133,6 +134,53 @@ export class StudentsService {
         }
     }
 
+    async getOneStudent(id: number) {
+        const student = await this.prisma.student.findUnique({
+            where: { id },
+            select: {
+                id: true,
+                full_name: true,
+                phone: true,
+                photo: true,
+                email: true,
+                address: true,
+                birth_date: true,
+                created_at: true,
+                studentGroups: {
+                    select: {
+                        groups: {
+                            select: {
+                                id: true,
+                                name: true
+                            }
+                        }
+                    }
+                }
+            }
+        });
+
+        if (!student) {
+            throw new NotFoundException("Student not found");
+        }
+
+        const dataFormatter = {
+            id: student.id,
+            full_name: student.full_name,
+            phone: student.phone,
+            photo: student.photo,
+            email: student.email,
+            address: student.address,
+            birth_date: student.birth_date,
+            created_at: student.created_at,
+            groups: student.studentGroups.map(group => group.groups)
+        };
+
+        return {
+            success: true,
+            data: dataFormatter
+        };
+    }
+
     async createStudent(payload : CreateStudentDto, filename? : string){
 
         const existStudent = await this.prisma.student.findFirst({
@@ -242,5 +290,75 @@ export class StudentsService {
             success : true,
             message : "Student deleted"
         }
+    }
+
+    async updateStudent(id: number, payload: UpdateStudentDto, filename?: string) {
+        const existStudent = await this.prisma.student.findUnique({
+            where: { id }
+        });
+
+        if (!existStudent) {
+            throw new NotFoundException("Student not found");
+        }
+
+        if (payload.phone || payload.email) {
+            const duplicateStudent = await this.prisma.student.findFirst({
+                where: {
+                    OR: [
+                        { phone: payload.phone ?? "" },
+                        { email: payload.email ?? "" }
+                    ],
+                    NOT: { id }
+                }
+            });
+
+            if (duplicateStudent) {
+                throw new ConflictException("Phone or email already exists");
+            }
+        }
+
+        let hashPass;
+        if (payload.password) {
+            hashPass = await bcrypt.hash(payload.password, 10);
+        }
+
+        const { groups, ...studentData } = payload;
+
+        if (groups !== undefined) {
+            const existingGroups = await this.prisma.group.findMany({
+                where: {
+                    id: { in: groups },
+                    status: Status.active
+                }
+            });
+
+            if (existingGroups.length !== groups?.length) {
+                throw new NotFoundException("Group is not found or inactive");
+            }
+            
+            await this.prisma.studentGroup.deleteMany({
+                where: { student_id: id }
+            });
+        }
+
+        await this.prisma.student.update({
+            where: { id },
+            data: {
+                ...studentData,
+                ...(payload.birth_date && { birth_date: new Date(payload.birth_date) }),
+                ...(filename && { photo: filename }),
+                ...(hashPass && { password: hashPass }),
+                ...(groups !== undefined && {
+                    studentGroups: groups?.length ? {
+                        create: groups?.map(gId => ({ group_id: gId }))
+                    } : undefined
+                })
+            }
+        });
+
+        return {
+            success: true,
+            message: "Student updated"
+        };
     }
 }

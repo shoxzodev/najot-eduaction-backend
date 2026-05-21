@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, ParseIntPipe, Post, UploadedFile, UseGuards, UseInterceptors } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, ParseIntPipe, Patch, Post, UploadedFile, UseGuards, UseInterceptors } from '@nestjs/common';
 import { TeachersService } from './teachers.service';
 import { ApiBearerAuth, ApiBody, ApiConsumes, ApiOperation } from '@nestjs/swagger';
 import { Role } from '@prisma/client';
@@ -8,6 +8,7 @@ import { Roles } from 'src/common/decorators/role';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
 import { CreateTeacherDto } from './dto/create.dto';
+import { UpdateTeacherDto } from './dto/update.dto';
 
 @ApiBearerAuth()
 @Controller('teachers')
@@ -33,6 +34,16 @@ export class TeachersController {
     getArchiveTeachers() {
         return this.teacherService.getArchiveTeachers()
     }   
+
+    @ApiOperation({
+        summary: `${Role.SUPERADMIN}, ${Role.ADMIN}`,
+    })
+    @UseGuards(AuthGuard, RolesGuard)
+    @Roles(Role.SUPERADMIN, Role.ADMIN)
+    @Get("one/:id")
+    getOneTeacher(@Param("id", ParseIntPipe) id: number) {
+        return this.teacherService.getOneTeacher(id);
+    }
 
     @ApiOperation({
         summary: `${Role.SUPERADMIN}, ${Role.ADMIN}`,
@@ -80,5 +91,29 @@ export class TeachersController {
     @Delete(":id")
     deleteTeacher(@Param("id", ParseIntPipe) id: number) {
         return this.teacherService.deleteTeacher(id)
+    }
+
+    @ApiOperation({
+        summary: `${Role.SUPERADMIN}, ${Role.ADMIN}`,
+    })
+    @UseGuards(AuthGuard, RolesGuard)
+    @Roles(Role.SUPERADMIN, Role.ADMIN)
+    @Patch("/:id")
+    @ApiConsumes("multipart/form-data")
+    @UseInterceptors(FileInterceptor("photo", {
+        storage: diskStorage({
+            destination: "./src/uploads",
+            filename: (req, file, cb) => {
+                const filename = Date.now() + "." + file.mimetype.split("/")[1]
+                cb(null, filename)
+            }
+        })
+    }))
+    updateTeacher(
+        @Param("id", ParseIntPipe) id: number,
+        @Body() payload: UpdateTeacherDto,
+        @UploadedFile() file?: Express.Multer.File
+    ) {
+        return this.teacherService.updateTeacher(id, payload, file?.filename)
     }
 }
