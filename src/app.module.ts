@@ -14,6 +14,7 @@ import { LessonsModule } from './modules/lessons/lessons.module';
 import { AttendanceModule } from './modules/attendance/attendance.module';
 import { HomeworkModule } from './modules/homework/homework.module';
 import { SeedModule } from './common/seeder/seed.module';
+import { FilesModule } from './modules/files/files.module';
 
 @Module({
   imports: [
@@ -36,7 +37,8 @@ import { SeedModule } from './common/seeder/seed.module';
     LessonsModule,
     AttendanceModule,
     HomeworkModule,
-    SeedModule
+    SeedModule,
+    FilesModule
   ],
 })
 export class AppModule { }

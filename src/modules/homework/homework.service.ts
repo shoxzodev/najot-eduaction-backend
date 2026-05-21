@@ -85,6 +85,7 @@ export class HomeworkService {
                     homework_id: homeworkId,
                     homeworkStatus: HomeworkStatus.PENDING 
                 },select:{
+                    created_at : true,
                     students:{
                         select : {
                             id : true,
@@ -105,6 +106,7 @@ export class HomeworkService {
                 },select:{
                     homeworkAnswerStudent:{
                         select : {
+                            created_at: true,
                             students : {
                                 select : {
                                     id : true,
@@ -117,11 +119,42 @@ export class HomeworkService {
 
             }) 
         }
+          
+        let topshirganTalabalar = await this.prisma.homeworkAnswerStudent.findMany({
+            where:{
+                homework_id:homeworkId,    
+            }
+        })   
+
+        let topshirganTalabalarId = topshirganTalabalar.map(el=>el.student_id)
+
+        const topshirilmaganTalabalar = await this.prisma.studentGroup.findMany({
+            where : {
+                group_id:groupId,
+                student_id:{ 
+                    notIn:topshirganTalabalarId,
+                }
+            },select:{
+                students:{
+                    select:{
+                        id:true,
+                        full_name:true
+                    }
+                }
+            }   
+        })   
  
+        if(!status){ 
+            return {
+            success: true,
+            data:topshirilmaganTalabalar.map(el=>el.students)
+        }
+        }
+  
         return {
             success: true,
             data:{ 
-                students:status == "PENDING" ? studentsResult.map(el=>el.students): studentsResult.map(el=>el.homeworkAnswerStudent.students)
+                students:status == "PENDING" ? studentsResult.map(el=> ({...el.students, created_at: el.created_at})) : studentsResult.map(el=> ({...el.homeworkAnswerStudent.students, created_at: el.homeworkAnswerStudent.created_at}))
             }
         }
     } 
@@ -185,10 +218,19 @@ export class HomeworkService {
                     }
                 });
 
-                const acceptCount = await this.prisma.homeworkAnswerStudent.count({
+                const acceptCount = await this.prisma.homeworkResult.count({
                     where: {
                         homework_id: hw.id,
+                        group_id: groupId,
                         homeworkStatus: HomeworkStatus.ACCEPTED
+                    }
+                });
+
+                const rejectCount = await this.prisma.homeworkResult.count({
+                    where: {
+                        homework_id: hw.id,
+                        group_id: groupId,
+                        homeworkStatus: HomeworkStatus.REJECTED
                     }
                 });
 
@@ -199,6 +241,7 @@ export class HomeworkService {
                     homework: [hw],
                     homeworkPending: pendingCount,
                     homeworkAccept: acceptCount,
+                    homeworkReject: rejectCount,
                     existStudentsIngroup: existStudentsIngroup
                 };
             })

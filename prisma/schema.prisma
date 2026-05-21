@@ -111,6 +111,7 @@ model Group {
   studentGroups   StudentGroup[]
   attendances     Attendance[]
   homeworkResults HomeworkResult[]
+  lessonVideos    lessonVideo[]
 }
 
 model StudentGroup {
@@ -127,19 +128,20 @@ model StudentGroup {
 }
 
 model Lesson {
-  id          Int        @id @default(autoincrement())
-  group_id    Int
-  teacher_id  Int?
-  user_id     Int?
-  topic       String
-  description String?
-  status      Status     @default(active)
-  created_at  DateTime   @default(now())
-  update_at   DateTime   @updatedAt
-  homework    Homework[]
-  groups      Group      @relation(fields: [group_id], references: [id])
-  teachers    Teacher?   @relation(fields: [teacher_id], references: [id])
-  users       User?      @relation(fields: [user_id], references: [id])
+  id           Int           @id @default(autoincrement())
+  group_id     Int
+  teacher_id   Int?
+  user_id      Int?
+  topic        String
+  description  String?
+  status       Status        @default(active)
+  created_at   DateTime      @default(now())
+  update_at    DateTime      @updatedAt
+  homework     Homework[]
+  groups       Group         @relation(fields: [group_id], references: [id])
+  teachers     Teacher?      @relation(fields: [teacher_id], references: [id])
+  users        User?         @relation(fields: [user_id], references: [id])
+  lessonVideos lessonVideo[]
 }
 
 model Attendance {
@@ -156,7 +158,7 @@ model Attendance {
   teachers   Teacher? @relation(fields: [teacher_id], references: [id])
   users      User?    @relation(fields: [user_id], references: [id])
 }
- 
+
 model Homework {
   id                     Int                     @id @default(autoincrement())
   teacher_id             Int?
@@ -175,9 +177,9 @@ model Homework {
   homeworkResults        HomeworkResult[]
 }
 
-model HomeworkAnswerStudent { 
+model HomeworkAnswerStudent {
   id              Int              @id @default(autoincrement())
-  student_id      Int 
+  student_id      Int
   homework_id     Int
   title           String
   file            String?
@@ -187,7 +189,7 @@ model HomeworkAnswerStudent {
   homework        Homework         @relation(fields: [homework_id], references: [id])
   students        Student          @relation(fields: [student_id], references: [id])
   homeworkResults HomeworkResult[]
-} 
+}
 
 model HomeworkResult {
   id                    Int                   @id @default(autoincrement())
@@ -196,7 +198,7 @@ model HomeworkResult {
   user_id               Int?
   group_id              Int
   homework_id           Int
-  grade                 Int   
+  grade                 Int
   title                 String
   homeworkStatus        HomeworkStatus
   created_at            DateTime              @default(now())
@@ -219,6 +221,19 @@ model GroupTeacher {
   Teacher    Teacher  @relation(fields: [teacher_id], references: [id])
 
   @@unique([group_id, teacher_id])
+}
+
+model lessonVideo {
+  id         Int      @id @default(autoincrement())
+  lesson_id  Int
+  group_id   Int
+  originalname String  
+  video_url  String
+  size_mb    Float
+  created_at DateTime @default(now()) 
+  update_at  DateTime @updatedAt
+  lesson     Lesson   @relation(fields: [lesson_id], references: [id])
+  groups     Group    @relation(fields: [group_id], references: [id])
 }
 
 enum Role {

@@ -42,8 +42,8 @@ export class HomeworkController {
     getHomeworkResults(  
         @Param("groupId", ParseIntPipe) groupId : number,
         @Param("homeworkId", ParseIntPipe) homeworkId : number,
-        @Query("status") status : HomeworkStatus
-    ){ 
+        @Query("status") status : HomeworkStatus 
+    ){  
         return this.homeworkService.getHomeworkResults(groupId,homeworkId,status)
     } 
 
