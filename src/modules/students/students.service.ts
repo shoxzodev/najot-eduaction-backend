@@ -24,15 +24,54 @@ export class StudentsService {
                 groups:{
                     select:{
                         id:true,
-                        name:true
+                        name:true,
+                        start_date:true, 
+                        week_day:true, 
+                        start_time:true,
+                        
+                        courses:{
+                            select:{
+                                name:true,
+                                duration_hours:true, 
+                            }
+                        },
+                        _count:{
+                            select:{
+                                GroupTeacher:true
+                            }
+                        },
+                        GroupTeacher:{
+                            select:{
+                                Teacher:{
+                                    select:{
+                                        full_name:true,
+                                    }
+                                }
+                            }
+                        }
                     }
                 }
             }
         })
 
+        const formattedGroup = myGroups.map(el => ({
+            groupName:el.groups.name,
+            courseName:el.groups.courses.name,
+            teachersCount:el.groups._count.GroupTeacher,
+            startDate:el.groups.start_date,
+            groupId:el.groups.id,
+            teachers:el.groups.GroupTeacher.map(teacher => ({ 
+                full_name:teacher.Teacher.full_name,
+                role:"TEACHER",
+                week_day:el.groups.week_day,
+                start_time:el.groups.start_time, 
+                duration_hours:el.groups.courses.duration_hours, 
+            })) 
+        }))  
+
         return {
             success : true,
-            data: myGroups.map(el => el.groups)
+            data: formattedGroup
         }
     }
 

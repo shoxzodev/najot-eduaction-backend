@@ -125,7 +125,7 @@ export class HomeworkController {
         summary: `${Role.SUPERADMIN}, ${Role.ADMIN}, ${Role.TEACHER}`
     })
     @UseGuards(AuthGuard, RolesGuard)
-    @Roles(Role.SUPERADMIN, Role.ADMIN, Role.TEACHER)
+    @Roles(Role.SUPERADMIN, Role.ADMIN, Role.TEACHER) 
     @Post("group/:groupId/homework/:homeworkId/check")
     submitHomeworkResult(
         @Param("groupId", ParseIntPipe) groupId : number,

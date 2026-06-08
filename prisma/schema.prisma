@@ -13,6 +13,13 @@ enum HomeworkStatus {
   CHECKED
 }
 
+enum TeacherGroupStatus {
+  active
+  inactive 
+  planned
+  completed
+}
+
 model User {
   id              Int              @id @default(autoincrement())
   first_name      String
@@ -216,7 +223,8 @@ model GroupTeacher {
   id         Int      @id @default(autoincrement())
   group_id   Int
   teacher_id Int
-  createdAt  DateTime @default(now())
+  createdAt  DateTime @default(now()) 
+  status     TeacherGroupStatus   @default(active)  
   Group      Group    @relation(fields: [group_id], references: [id])
   Teacher    Teacher  @relation(fields: [teacher_id], references: [id])
 

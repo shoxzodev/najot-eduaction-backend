@@ -3,12 +3,139 @@ import { PrismaService } from 'src/core/database/prisma.service';
 import { CreateGroupDto } from './dto/create.dto';
 import { UpdateGroupDto } from './dto/update.dto';
 import { CreateLessonDto } from './dto/create-lesson.dto';
-import { Status } from '@prisma/client';
+import { HomeworkStatus, Status } from '@prisma/client';
 import { filterDto } from './dto/search';
 
 @Injectable()
 export class GroupsService {
     constructor(private prisma: PrismaService) { }
+
+    async getLessonsByGroupId(groupId: number, studentId: number) {
+        const existsStudent = await this.prisma.studentGroup.findFirst({
+            where:{
+                group_id:groupId,
+                student_id:studentId
+            }
+        })
+
+        if(!existsStudent){
+            throw new NotFoundException("Group not found with this id")
+        }
+
+        const lessons = await this.prisma.lesson.findMany({
+            where:{
+                group_id:groupId 
+            },
+            select:{
+                id:true,
+                topic:true,
+                created_at:true,
+                _count:{
+                    select:{
+                        lessonVideos:true
+                    }
+                }, 
+                homework:{
+                    select:{
+                        id:true,
+                    } 
+                }  
+            }
+        })
+
+        let lessonsFormated = lessons.map(lesson => {
+            return {
+                id:lesson.id,
+                topic:lesson.topic,
+                created_at:lesson.created_at, 
+                homeworkId:lesson.homework[0]?.id ? lesson.homework[0].id : null,
+                videoCount:lesson._count.lessonVideos || 0
+            }
+        })
+
+        return lessonsFormated
+    }
+
+    async getLessons(groupId: number, studentId: number) {
+        const existGroup = await this.prisma.studentGroup.findFirst({
+            where: {
+                group_id: groupId,
+                student_id: studentId
+            }
+        })
+
+        if (!existGroup) {
+            throw new NotFoundException("Group not found with this id")
+        }
+
+        let lessons : any = await this.prisma.lesson.findMany({
+            where:{
+                group_id: groupId
+            },
+            select:{
+                id:true,
+                topic:true,
+                created_at:true,
+
+                _count:{ 
+                    select:{
+                        lessonVideos:true
+                    }
+                },
+                
+                homework:{ 
+                    select:{
+                        id:true,
+                        lesson_id:true,  
+                        homeworkAnswerStudents:{
+                            select:{
+                                homeworkStatus:true, 
+                                homeworkResults:{
+                                    select:{
+                                        homeworkStatus:true
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        })
+
+        lessons = lessons.map(lesson => {   
+            if(lesson.homework.length === 0){
+                return {
+                    ...lesson,
+                    status:"Berilmagan"
+                }
+            }else if(lesson.homework[0]?.homeworkAnswerStudents[0]?.homeworkStatus == HomeworkStatus.PENDING){
+                return {
+                    ...lesson,
+                    status:"Kutilmoqda" 
+                }
+            }else if(lesson.homework[0]?.homeworkAnswerStudents[0]?.homeworkResults[0]?.homeworkStatus == HomeworkStatus.ACCEPTED){
+                return {
+                    ...lesson,
+                    status:"Qabul qilingan" 
+                }
+            }else if(lesson.homework[0]?.homeworkAnswerStudents[0]?.homeworkResults[0]?.homeworkStatus == HomeworkStatus.REJECTED){
+                return {
+                    ...lesson,
+                    status:"Qaytarilgan" 
+                }
+            }
+        }) 
+
+        const lessonFormated = lessons.map(lesson=>({
+            topic: lesson?.topic, 
+            created_at:lesson?.created_at,
+            status:lesson?.status, 
+            videoCount:lesson?._count?.lessonVideos,
+
+        }))
+        return lessonFormated 
+
+    } 
 
     async getGroupOne(groupId: number) {
         const existGroup = await this.prisma.group.findFirst({
@@ -152,7 +279,7 @@ export class GroupsService {
             course: {
                 name: el.courses.name,
                 duration_month: el.courses.duration_month,
-            },
+            }, 
             room: el.rooms.name,
             teachers: el.GroupTeacher.map(gt => ({
                 id: gt.Teacher.id,

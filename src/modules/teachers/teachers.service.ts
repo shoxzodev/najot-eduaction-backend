@@ -3,7 +3,7 @@ import { PrismaService } from 'src/core/database/prisma.service';
 import { CreateTeacherDto } from './dto/create.dto';
 import { UpdateTeacherDto } from './dto/update.dto';
 import * as bcrypt from "bcrypt"
-import { Status } from '@prisma/client';
+import { Status, TeacherGroupStatus } from '@prisma/client';
 
 @Injectable()
 export class TeachersService {
@@ -42,6 +42,73 @@ export class TeachersService {
         return {
             success:true,
             data:dataFormatter
+        }
+    }
+
+    async getMyGroups(teacherId: number) {
+
+        const groups = await this.prisma.group.findMany({
+            where: {
+                GroupTeacher:{
+                    some:{
+                        teacher_id:teacherId,
+                        status:TeacherGroupStatus.active
+                    }
+                }
+            },
+            select: {
+                id: true,
+                name: true,
+                max_student: true,
+                start_date: true,
+                start_time: true,
+                week_day: true,
+                status: true,
+                courses: {
+                    select: {
+                        id: true,
+                        name: true,
+                        duration_month: true
+                    }
+                },
+                rooms: {
+                    select: {
+                        id: true,
+                        name: true
+                    }
+                },
+                studentGroups: {
+                    select: {
+                        students: {
+                            select: {
+                                id: true,
+                                full_name: true
+                            }
+                        }
+                    }
+                }
+            }
+        })
+
+        const dataFormatter = groups.map((el) => ({
+            id: el.id,
+            name: el.name,
+            start_date: el.start_date,
+            start_time: el.start_time,
+            week_day: el.week_day,
+            status: el.status,
+            course: {
+                name: el.courses.name,
+                duration_month: el.courses.duration_month,
+            }, 
+            room: el.rooms.name,
+            student_count: el.studentGroups.length,
+            students: el.studentGroups.map(sg => sg.students)
+        }));
+
+        return {
+            success: true,
+            data: dataFormatter
         }
     }
 

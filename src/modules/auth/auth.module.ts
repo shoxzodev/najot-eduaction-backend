@@ -8,10 +8,10 @@ import { JwtModule } from '@nestjs/jwt';
     JwtModule.register({
       secret:"shapltoli",
       signOptions:{
-        expiresIn:"1h"
+        expiresIn:"1h" 
       },
       global:true
-    })
+    }) 
   ],
   controllers: [AuthController],
   providers: [AuthService]

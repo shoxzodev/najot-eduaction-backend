@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, ParseIntPipe, Patch, Post, Query, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, ParseIntPipe, Patch, Post, Query, Req, UseGuards } from '@nestjs/common';
 import { GroupsService } from './groups.service';
 import { CreateGroupDto } from './dto/create.dto';
 import { UpdateGroupDto } from './dto/update.dto';
@@ -14,6 +14,31 @@ import { filterDto } from './dto/search';
 @Controller('groups')
 export class GroupsController {
     constructor(private readonly groupService: GroupsService) { }
+
+
+    @ApiOperation({ summary: `${Role.STUDENT}` })
+    @UseGuards(AuthGuard, RolesGuard)
+    @Roles(Role.STUDENT) 
+    @Get(":groupId/lessons")   
+    getLessonsByGroupId(
+        @Param("groupId", ParseIntPipe) groupId: number,
+        @Req() req: Request
+    ) { 
+        return this.groupService.getLessonsByGroupId(groupId, req["user"].id)
+    }
+    
+
+
+    @ApiOperation({ summary: `${Role.STUDENT}` })
+    @UseGuards(AuthGuard, RolesGuard)
+    @Roles(Role.STUDENT)
+    @Get(":groupId/lessons/all")
+    getLessons(
+        @Param("groupId", ParseIntPipe) groupId: number,
+        @Req() req: Request
+    ) {
+        return this.groupService.getLessons(groupId, req["user"].id)
+    }
 
     @ApiOperation({ summary: `${Role.SUPERADMIN}, ${Role.ADMIN}` })
     @UseGuards(AuthGuard, RolesGuard)
@@ -94,7 +119,7 @@ export class GroupsController {
     @Delete(":id")
     deleteGroup(@Param("id", ParseIntPipe) id: number) {
         return this.groupService.deleteGroup(id)
-    } 
+    }
 
     @ApiOperation({ summary: `${Role.SUPERADMIN}, ${Role.ADMIN}` })
     @UseGuards(AuthGuard, RolesGuard)

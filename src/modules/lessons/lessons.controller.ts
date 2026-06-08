@@ -8,21 +8,49 @@ import { RolesGuard } from 'src/common/guards/role.guard';
 import { ApiBearerAuth, ApiOperation } from '@nestjs/swagger';
 
 @ApiBearerAuth()
-@Controller('lessons')
+@Controller()
 export class LessonsController {
     constructor(private readonly lessonService: LessonsService){}
+
+    @ApiOperation({
+        summary:`${Role.STUDENT}`
+    })
+    @UseGuards(AuthGuard,RolesGuard)
+    @Roles(Role.STUDENT) 
+    @Get("groups/:groupId/lessons/:lessonId/videos")
+    getLessonVideos(
+        @Param("groupId", ParseIntPipe) groupId : number,
+        @Param("lessonId", ParseIntPipe) lessonId : number,
+        @Req() req : Request 
+    ){
+        return this.lessonService.getLessonVideos(groupId,lessonId,req['user'])
+    }
 
     @ApiOperation({
         summary:`${Role.STUDENT},${Role.TEACHER},${Role.ADMIN},${Role.SUPERADMIN}`
     })
     @UseGuards(AuthGuard,RolesGuard)
     @Roles(Role.STUDENT,Role.TEACHER,Role.ADMIN,Role.SUPERADMIN)
-    @Get("my/group/:groupId")
+    @Get("lessons/my/group/:groupId")
     getMyGroupLessons(
         @Param("groupId", ParseIntPipe) groupId : number,
         @Req() req : Request 
     ){
         return this.lessonService.getMyGroupLessons(groupId,req['user'])
+    }
+
+    @ApiOperation({
+        summary:`${Role.STUDENT}`
+    })
+    @UseGuards(AuthGuard,RolesGuard)
+    @Roles(Role.STUDENT) 
+    @Get("groups/:groupId/lessons/:lessonId/homeworks")
+    getLessonHomeworks(
+        @Param("groupId", ParseIntPipe) groupId : number,
+        @Param("lessonId", ParseIntPipe) lessonId : number,
+        @Req() req : Request 
+    ){
+        return this.lessonService.getLessonHomeworks(groupId,lessonId,req['user'])
     }
 
 
@@ -31,17 +59,17 @@ export class LessonsController {
     })
     @UseGuards(AuthGuard,RolesGuard)
     @Roles(Role.ADMIN,Role.SUPERADMIN)
-    @Get()
+    @Get("lessons")
     getAllLessons(){
         return this.lessonService.getAllLessons()
-    }
+    } 
 
     @ApiOperation({
         summary:`${Role.ADMIN}, ${Role.TEACHER}`
     })
-    @UseGuards(AuthGuard,RolesGuard)
+    @UseGuards(AuthGuard,RolesGuard) 
     @Roles(Role.ADMIN,Role.TEACHER,Role.SUPERADMIN)
-    @Post()
+    @Post("lessons")
     createLesson(
         @Body() payload : CreateLessonDto,
         @Req() req : Request

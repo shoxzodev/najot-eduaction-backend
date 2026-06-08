@@ -44,6 +44,7 @@ export class AuthService {
                 return {
                     success: true,
                     message: "You're logged",
+                    role:Role.TEACHER,
                     accessToken: this.jwtService.sign({ id: existteacher.id, email: existteacher.email, role:Role.TEACHER })
                 }
             }
@@ -56,6 +57,7 @@ export class AuthService {
             return {
                 success: true,
                 message: "You're logged",
+                role:Role.STUDENT,
                 accessToken: this.jwtService.sign({ id: existStudent.id, email: existStudent.email, role: Role.STUDENT })
             }
 
@@ -69,6 +71,7 @@ export class AuthService {
         return {
             success: true,
             message: "You're logged",
+            role:existUser.role,
             accessToken: this.jwtService.sign({ id: existUser.id, email: existUser.email, role: existUser.role })
         }
     }

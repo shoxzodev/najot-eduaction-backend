@@ -306,10 +306,10 @@ export class HomeworkService {
                 homeworkStatus:payload.grade > 60 ? HomeworkStatus.ACCEPTED : HomeworkStatus.REJECTED, 
                 title: payload.title,
                 teacher_id: currentUser.role == Role.TEACHER ? currentUser.id : null,
-                user_id: currentUser.role == Role.ADMIN ? currentUser.id : null,  
+                user_id: currentUser.role != Role.TEACHER ? currentUser.id : null,  
             }
         }) 
-
+ 
         await this.prisma.homeworkAnswerStudent.update({
             where: {
                 id: payload.homework_answer_id 
