@@ -4,10 +4,14 @@ import { CreateTeacherDto } from './dto/create.dto';
 import { UpdateTeacherDto } from './dto/update.dto';
 import * as bcrypt from "bcrypt"
 import { Status, TeacherGroupStatus } from '@prisma/client';
+import { EskizService } from 'src/common/service/sms';
 
 @Injectable()
 export class TeachersService {
-    constructor(private prisma : PrismaService){}
+    constructor(
+        private prisma : PrismaService,
+        private smsService : EskizService 
+    ){}
 
     async getAllTeachers(){
         const teachers = await this.prisma.teacher.findMany({
@@ -233,6 +237,8 @@ export class TeachersService {
                 } : undefined
             }
         })
+
+        await this.smsService.sendSms(payload.phone[0] == "+" ? payload.phone : "+" + payload.phone, `NajotEdu kabinetingiz https://najotedu.softwareengineer.uz/login.\n Login: ${payload.phone} Parol: ${payload.password}}`)
 
         return {
             success:true,

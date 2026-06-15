@@ -40,7 +40,10 @@ export class GroupsService {
                         id:true,
                     } 
                 }  
-            }
+            },
+            orderBy:{
+                created_at:'desc'
+            } 
         })
 
         let lessonsFormated = lessons.map(lesson => {
@@ -99,6 +102,9 @@ export class GroupsService {
                         }
                     }
                 }
+            },
+            orderBy:{
+                created_at:'desc'
             }
         })
 
@@ -123,15 +129,20 @@ export class GroupsService {
                     ...lesson,
                     status:"Qaytarilgan" 
                 }
+            }else{
+                return {
+                    ...lesson,
+                    status: "Bajarilmagan" 
+                }
             }
         }) 
 
         const lessonFormated = lessons.map(lesson=>({
+            id: lesson?.id,
             topic: lesson?.topic, 
             created_at:lesson?.created_at,
             status:lesson?.status, 
             videoCount:lesson?._count?.lessonVideos,
-
         }))
         return lessonFormated 
 

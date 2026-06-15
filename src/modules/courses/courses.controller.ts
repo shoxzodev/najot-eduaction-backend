@@ -47,7 +47,7 @@ export class CoursesController {
         summary: `${Role.SUPERADMIN}, ${Role.ADMIN}`
     })
     @UseGuards(AuthGuard, RolesGuard)
-    @Roles(Role.SUPERADMIN, Role.ADMIN)
+    @Roles(Role.SUPERADMIN, Role.ADMIN) 
     // @ApiQuery({name:"level",enum:CourseLevel})
     @Post()
     createCourse(

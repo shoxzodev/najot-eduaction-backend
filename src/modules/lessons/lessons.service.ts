@@ -114,8 +114,15 @@ export class LessonsService {
             data: {
                 homework:{...lessonHomeworks[0]},
                 answer:{...studentHomeworkAnswer},
-                result:{...homeworkResult}
-            }
+                result:{
+                    id:homeworkResult.id,
+                    grade:homeworkResult.grade,
+                    title:homeworkResult.title, 
+                    created_at:homeworkResult.created_at,
+                    homeworkStatus:homeworkResult.homeworkStatus,
+                    checker:homeworkResult.teachers ? homeworkResult.teachers.full_name : homeworkResult?.users?.first_name + " " + homeworkResult?.users?.last_name,
+                }
+            } 
         }
         }
     }
@@ -172,7 +179,10 @@ export class LessonsService {
                 id:true,
                 topic:true,  
                 created_at:true
-            }
+            },
+            orderBy:{
+                created_at:"desc"
+            } 
         })
 
         return {

@@ -7,12 +7,14 @@ import { Status, StudentStatus } from '@prisma/client';
 import { EmailService } from 'src/common/email/email.service';
 import { PaginationDto } from './dto/pagination.dto';
 import { CreateHomeworkAnswerDto } from './dto/create.homework.dto';
+import { EskizService } from 'src/common/service/sms';
 
 @Injectable()
 export class StudentsService {
     constructor(
         private prisma : PrismaService,
-        private emailService : EmailService
+        private emailService : EmailService,
+        private smsService : EskizService
     ){}
 
     async getMyGroups(currentUser : { id : number}){
@@ -264,6 +266,8 @@ export class StudentsService {
                 } : undefined
             }
         })
+ 
+        await this.smsService.sendSms(payload.phone, `NajotEdu kabinetingiz https://najotedu.softwareengineer.uz/login.\n Login: ${payload.phone} Parol: ${payload.password}}`)
 
         // await this.emailService.sendEmail(payload.email,payload.phone,payload.password)
 

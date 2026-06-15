@@ -74,111 +74,175 @@ export class HomeworkService {
             success: true,
             data: homeworks
         }
-    } 
+    }
 
-    async getHomeworkResults(groupId : number, homeworkId : number, status?: HomeworkStatus) {
-        let studentsResult : any;
-        
-        if(status == HomeworkStatus.PENDING) {
+    async getHomeworkResults(groupId: number, homeworkId: number, status?: HomeworkStatus) {
+        let studentsResult: any;
+
+        if (status == HomeworkStatus.PENDING) {
             studentsResult = await this.prisma.homeworkAnswerStudent.findMany({
-                where : {
+                where: {
                     homework_id: homeworkId,
-                    homeworkStatus: HomeworkStatus.PENDING 
-                },select:{
-                    created_at : true,
-                    students:{
-                        select : {
-                            id : true,
-                            full_name : true, 
+                    homeworkStatus: HomeworkStatus.PENDING
+                }, select: {
+                    created_at: true,
+                    students: {
+                        select: {
+                            id: true,
+                            full_name: true,
                         }
                     }
                 }
-                
-            }) 
+
+            })
         }
- 
-        else if(status == HomeworkStatus.ACCEPTED || status == HomeworkStatus.REJECTED ) {
+
+        else if (status == HomeworkStatus.ACCEPTED || status == HomeworkStatus.REJECTED) {
             studentsResult = await this.prisma.homeworkResult.findMany({
-                where : {
+                where: {
                     homework_id: homeworkId,
-                    group_id:groupId,
-                    homeworkStatus:status 
-                },select:{
-                    homeworkAnswerStudent:{
-                        select : {
+                    group_id: groupId,
+                    homeworkStatus: status
+                }, select: {
+                    homeworkAnswerStudent: {
+                        select: {
                             created_at: true,
-                            students : {
-                                select : {
-                                    id : true,
-                                    full_name : true,
+                            students: {
+                                select: {
+                                    id: true,
+                                    full_name: true,
                                 }
                             }
                         }
-                    } 
-                }
-
-            }) 
-        }
-          
-        let topshirganTalabalar = await this.prisma.homeworkAnswerStudent.findMany({
-            where:{
-                homework_id:homeworkId,    
-            }
-        })   
-
-        let topshirganTalabalarId = topshirganTalabalar.map(el=>el.student_id)
-
-        const topshirilmaganTalabalar = await this.prisma.studentGroup.findMany({
-            where : {
-                group_id:groupId,
-                student_id:{ 
-                    notIn:topshirganTalabalarId,
-                }
-            },select:{
-                students:{
-                    select:{
-                        id:true,
-                        full_name:true
                     }
                 }
-            }   
-        })   
- 
-        if(!status){ 
-            return {
-            success: true,
-            data:topshirilmaganTalabalar.map(el=>el.students)
-        }
-        }
-  
-        return {
-            success: true,
-            data:{ 
-                students:status == "PENDING" ? studentsResult.map(el=> ({...el.students, created_at: el.created_at})) : studentsResult.map(el=> ({...el.homeworkAnswerStudent.students, created_at: el.homeworkAnswerStudent.created_at}))
-            }
-        }
-    } 
 
-    async getGroupHomeworkStudentResult(groupId : number, homeworkId : number, studentId : number) {
-        const studentResult = await this.prisma.homeworkAnswerStudent.findFirst({
-            where : {
-                homework_id: homeworkId, 
-                student_id:studentId
-            },select:{
-                id:true,
-                file:true,
-                title:true,
-                students:{
-                    select:{
-                        id:true,
-                        full_name:true,
+            })
+        }
+
+        let topshirganTalabalar = await this.prisma.homeworkAnswerStudent.findMany({
+            where: {
+                homework_id: homeworkId,
+            }
+        })
+
+        let topshirganTalabalarId = topshirganTalabalar.map(el => el.student_id)
+
+        const topshirilmaganTalabalar = await this.prisma.studentGroup.findMany({
+            where: {
+                group_id: groupId,
+                student_id: {
+                    notIn: topshirganTalabalarId,
+                }
+            }, select: {
+                students: {
+                    select: {
+                        id: true,
+                        full_name: true
                     }
                 }
             }
         })
+
+        if (!status) {
+            return {
+                success: true,
+                data: topshirilmaganTalabalar.map(el => el.students)
+            }
+        }
+
         return {
             success: true,
-            data: studentResult
+            data: {
+                students: status == "PENDING" ? studentsResult.map(el => ({ ...el.students, created_at: el.created_at })) : studentsResult.map(el => ({ ...el.homeworkAnswerStudent.students, created_at: el.homeworkAnswerStudent.created_at }))
+            }
+        }
+    }
+
+    async getGroupHomeworkStudentResult(groupId: number, homeworkId: number, studentId: number, lessonId:number) {
+        const studentResult = await this.prisma.homeworkAnswerStudent.findFirst({
+            where: {
+                homework_id: homeworkId,
+                student_id: studentId
+            }, select: {
+                id: true,
+                file: true,
+                title: true,
+                created_at: true,
+                students: {
+                    select: {
+                        id: true,
+                        full_name: true,
+                    }
+                }
+            }
+        })
+
+        const homework = await this.prisma.homework.findFirst({
+            where: {
+                id: homeworkId
+            }, select: {
+                id: true,
+                file: true,
+                title: true,
+            }
+        })
+
+        let lessons: any = await this.prisma.lesson.findFirst({
+            where: {
+                group_id: groupId,
+                id:lessonId
+            },
+            select: {  
+                homework: {
+                    where: { 
+                        id: homeworkId
+                    }, 
+                    select: {
+                        homeworkAnswerStudents: {
+                            where:{
+                                student_id: studentId
+                            }, 
+                            select: { 
+                                homeworkResults: {
+                                    select: {
+                                        homeworkStatus: true, 
+                                        title:true,
+                                        grade:true
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            orderBy: {
+                created_at: 'desc'
+            }  
+        }) 
+
+
+        let status
+        if (lessons.homework.length === 0) {
+            status = "Berilmagan"
+        } else if (lessons.homework[0]?.homeworkAnswerStudents[0]?.homeworkStatus == HomeworkStatus.PENDING) {
+            status = "Kutilmoqda"
+        } else if (lessons.homework[0]?.homeworkAnswerStudents[0]?.homeworkResults[0]?.homeworkStatus == HomeworkStatus.ACCEPTED) {
+            status = "Qabul qilingan"
+        } else if (lessons.homework[0]?.homeworkAnswerStudents[0]?.homeworkResults[0]?.homeworkStatus == HomeworkStatus.REJECTED) {
+            status = "Qaytarilgan"
+        } else { 
+            status = "Bajarilmagan"
+        } 
+
+        return {
+            success: true,
+            data: {
+                ...studentResult,
+                homework,
+                homeworkResult:lessons.homework[0]?.homeworkAnswerStudents[0]?.homeworkResults[0],
+                status
+            }
         }
     }
 
@@ -199,6 +263,9 @@ export class HomeworkService {
                                 created_at: true,
                             }
                         }
+                    },
+                    orderBy: {
+                        created_at: "desc"
                     }
                 }
             }
@@ -209,13 +276,13 @@ export class HomeworkService {
         });
 
         const lessons = group[0].lessons;
-        const groupFormated = await Promise.all(lessons.flatMap(lesson => 
+        const groupFormated = await Promise.all(lessons.flatMap(lesson =>
             lesson.homework.map(async hw => {
                 const pendingCount = await this.prisma.homeworkAnswerStudent.count({
                     where: {
                         homework_id: hw.id,
                         homeworkStatus: HomeworkStatus.PENDING
-                    }
+                    },
                 });
 
                 const acceptCount = await this.prisma.homeworkResult.count({
@@ -296,33 +363,32 @@ export class HomeworkService {
         }
     }
 
-    async checkHomeworkResult(payload:HomeworkResultDto,currentUser:{id:number,role:Role},groupId:number,homeworkId:number){
+    async checkHomeworkResult(payload: HomeworkResultDto, currentUser: { id: number, role: Role }, groupId: number, homeworkId: number) {
         await this.prisma.homeworkResult.create({
             data: {
-                homework_answer_id:payload.homework_answer_id,
+                homework_answer_id: payload.homework_answer_id,
                 group_id: groupId,
-                homework_id:homeworkId, 
+                homework_id: homeworkId,
                 grade: payload.grade,
-                homeworkStatus:payload.grade > 60 ? HomeworkStatus.ACCEPTED : HomeworkStatus.REJECTED, 
+                homeworkStatus: payload.grade > 60 ? HomeworkStatus.ACCEPTED : HomeworkStatus.REJECTED,
                 title: payload.title,
                 teacher_id: currentUser.role == Role.TEACHER ? currentUser.id : null,
-                user_id: currentUser.role != Role.TEACHER ? currentUser.id : null,  
+                user_id: currentUser.role != Role.TEACHER ? currentUser.id : null,
             }
-        }) 
- 
+        })
+
         await this.prisma.homeworkAnswerStudent.update({
             where: {
-                id: payload.homework_answer_id 
+                id: payload.homework_answer_id
             },
             data: {
-                homeworkStatus:HomeworkStatus.CHECKED,
+                homeworkStatus: HomeworkStatus.CHECKED,
             }
         })
 
         return {
-            success: true, 
+            success: true,
             message: "Homework recorded"
         }
     }
 }
- 

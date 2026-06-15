@@ -15,6 +15,7 @@ import { AttendanceModule } from './modules/attendance/attendance.module';
 import { HomeworkModule } from './modules/homework/homework.module';
 import { SeedModule } from './common/seeder/seed.module';
 import { FilesModule } from './modules/files/files.module';
+import { RedisModule } from './common/redis/redis.module';
 
 @Module({
   imports: [
@@ -38,7 +39,8 @@ import { FilesModule } from './modules/files/files.module';
     AttendanceModule,
     HomeworkModule,
     SeedModule,
-    FilesModule
+    FilesModule,
+    RedisModule
   ],
 })
 export class AppModule { }
