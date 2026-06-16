@@ -16,12 +16,17 @@ import { HomeworkModule } from './modules/homework/homework.module';
 import { SeedModule } from './common/seeder/seed.module';
 import { FilesModule } from './modules/files/files.module';
 import { RedisModule } from './common/redis/redis.module';
+import { JwtModule } from '@nestjs/jwt';
 
 @Module({
   imports: [
+    JwtModule.register({
+      secret: "shaptoli",
+      global: true
+    }),
     ServeStaticModule.forRoot({
-      rootPath: join(process.cwd(),"src" ,"uploads"),
-      serveRoot:"/files"
+      rootPath: join(process.cwd(), "src", "uploads"),
+      serveRoot: "/files"
     })
     ,
     ConfigModule.forRoot({

@@ -8,6 +8,8 @@ import { RedisService } from 'src/common/redis/redis.service';
 import { EskizService } from 'src/common/service/sms';
 import { UpdatePasswordDto } from './dto/update-password.dt';
 import { VeifyOtpDto } from './dto/verify-otp.dto';
+import { JwtGenerateToken } from 'src/common/utils/jwt';
+import { RefreshTokenDto } from './dto/refresh-token.dto';
 
 @Injectable()
 export class AuthService {
@@ -15,7 +17,8 @@ export class AuthService {
         private prisma: PrismaService,
         private jwtService: JwtService,
         private redisService: RedisService,
-        private eskizService: EskizService
+        private eskizService: EskizService,
+        private jwtGenerateToken: JwtGenerateToken
     ) { }
 
     private otpGenerate() {
@@ -68,8 +71,9 @@ export class AuthService {
                 return {
                     success: true,
                     message: "You're logged",
-                    role: Role.TEACHER,
-                    accessToken: this.jwtService.sign({ id: existteacher.id, email: existteacher.email, role: Role.TEACHER })
+                    role: Role.TEACHER, 
+                    accessToken: this.jwtGenerateToken.generateAccessToken({ id: existteacher.id, email: existteacher.email, role: Role.TEACHER }),
+                    refreshToken: this.jwtGenerateToken.generateRefreshToken({ id: existteacher.id, email: existteacher.email, role: Role.TEACHER })
                 }
             }
 
@@ -82,7 +86,8 @@ export class AuthService {
                 success: true,
                 message: "You're logged",
                 role: Role.STUDENT,
-                accessToken: this.jwtService.sign({ id: existStudent.id, email: existStudent.email, role: Role.STUDENT })
+                accessToken: this.jwtGenerateToken.generateAccessToken({ id: existStudent.id, email: existStudent.email, role: Role.STUDENT }),
+                refreshToken: this.jwtGenerateToken.generateRefreshToken({ id: existStudent.id, email: existStudent.email, role: Role.STUDENT })
             }
 
         }
@@ -96,7 +101,8 @@ export class AuthService {
             success: true,
             message: "You're logged",
             role: existUser.role,
-            accessToken: this.jwtService.sign({ id: existUser.id, email: existUser.email, role: existUser.role })
+            accessToken: this.jwtGenerateToken.generateAccessToken({ id: existUser.id, email: existUser.email, role: existUser.role }),
+            refreshToken: this.jwtGenerateToken.generateRefreshToken({ id: existUser.id, email: existUser.email, role: existUser.role })
         }
     }
 
@@ -252,5 +258,23 @@ export class AuthService {
             message: "Otp verified successfully",
         }
     }
+
+    async refreshToken(payload: RefreshTokenDto) {
+        const user = await this.jwtGenerateToken.verifyToken(payload.token)
+        if(!user){
+            throw new UnauthorizedException("Invalid token")
+        } 
+
+        delete user.exp
+        delete user.iat  
+
+        const accessToken = this.jwtGenerateToken.generateAccessToken(user)
+        return {
+            success: true,
+            message: "Token refreshed successfully",
+            accessToken
+        }
+         
+    } 
 
 }

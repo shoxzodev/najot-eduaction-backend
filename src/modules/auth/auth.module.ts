@@ -4,18 +4,10 @@ import { AuthService } from './auth.service';
 import { JwtModule } from '@nestjs/jwt';
 import { EskizService } from 'src/common/service/sms';
 import { RedisService } from 'src/common/redis/redis.service';
+import { JwtGenerateToken } from 'src/common/utils/jwt';
 
 @Module({
-  imports:[
-    JwtModule.register({
-      secret:"shapltoli",
-      signOptions:{
-        expiresIn:"1h" 
-      },
-      global:true
-    }) 
-  ],
   controllers: [AuthController],
-  providers: [AuthService,EskizService,RedisService]
+  providers: [AuthService,EskizService,RedisService,JwtGenerateToken]
 })
 export class AuthModule {}

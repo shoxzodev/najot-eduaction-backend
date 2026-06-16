@@ -4,6 +4,7 @@ import { AuthService } from './auth.service';
 import { UpdatePasswordDto } from './dto/update-password.dt';
 import { VeifyPhoneDto } from './dto/verify-phone.dto';
 import { VeifyOtpDto } from './dto/verify-otp.dto';
+import { RefreshTokenDto } from './dto/refresh-token.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -21,8 +22,13 @@ export class AuthController {
  
     @Post("verify-otp") 
     verifyOtp(@Body() payload:VeifyOtpDto){
-        return this.authService.verifyOtp(payload)
+        return this.authService.verifyOtp(payload) 
     }   
+
+    @Post("refresh-token")
+    refresh(@Body() payload: RefreshTokenDto){ 
+        return this.authService.refreshToken(payload) 
+    }    
  
     @Put("change-password")
     changePassword(@Body() payload: UpdatePasswordDto){

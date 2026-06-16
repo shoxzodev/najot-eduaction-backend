@@ -15,7 +15,7 @@ export class AttendanceController {
     @ApiOperation({
         summary: `${Role.SUPERADMIN}, ${Role.ADMIN}, ${Role.TEACHER}`
     })
-    @UseGuards(AuthGuard, RolesGuard)
+    @UseGuards(AuthGuard, RolesGuard) 
     @Roles(Role.SUPERADMIN, Role.ADMIN, Role.TEACHER)
     @Get("all")
     getAllAttendance(){
