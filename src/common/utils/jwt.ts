@@ -9,10 +9,10 @@ export class JwtGenerateToken{
     ){}
  
     generateAccessToken(payload: any){ 
-        return this.jwtService.sign(payload, { expiresIn: '1m' })  
+        return this.jwtService.sign(payload, { expiresIn: '30m' })  
     }
 
-    generateRefreshToken(payload: any) {
+    generateRefreshToken(payload: any) { 
         return this.jwtService.sign(payload, { expiresIn: '7d' })
     } 
 
