@@ -131,4 +131,12 @@ export class GroupsController {
     ) {
         return this.groupService.updateGroup(id, payload)
     }
+
+    @ApiOperation({ summary: `${Role.SUPERADMIN}` })
+    @UseGuards(AuthGuard, RolesGuard)
+    @Roles(Role.SUPERADMIN)
+    @Get("users")
+    async getAllGroupUsers() {
+        return await this.groupService.getAllGroupUsers()
+    }
 }

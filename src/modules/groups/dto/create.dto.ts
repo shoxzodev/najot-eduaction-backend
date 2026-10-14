@@ -7,15 +7,15 @@ import { IsDateString, IsEnum, IsNumber, IsOptional, IsString } from "class-vali
 export class CreateGroupDto {
     @ApiProperty()
     @IsString()
-    name: string
+    name!: string
 
     @ApiProperty()
     @IsOptional()
-    description: string
+    description!: string
 
     @ApiProperty()
     @IsNumber()
-    course_id: number
+    course_id!: number
 
     @ApiProperty({ type: [Number] })
     @IsNumber({}, { each: true })
@@ -29,22 +29,22 @@ export class CreateGroupDto {
 
     @ApiProperty()
     @IsNumber()
-    room_id: number
+    room_id!:number
 
     @ApiProperty()
     @IsDateString()
-    start_date: string
+    start_date!: string
 
     @ApiProperty({ enum: WeekDay, isArray: true })
     @IsEnum(WeekDay, { each: true })
-    week_day: WeekDay[];
+    week_day!: WeekDay[];
 
     @ApiProperty()
     @IsString()
-    start_time: string
+    start_time!: string
 
     @ApiProperty()
     @IsNumber()
-    max_student: number
+    max_student!: number
 }
 

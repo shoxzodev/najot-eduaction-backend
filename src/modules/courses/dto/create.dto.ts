@@ -8,27 +8,27 @@ export class CreateCourseDto{
     @ApiProperty()
     @IsString()
     @Type(()=>String)
-    name:string
+    name!:string
 
     @ApiProperty()
     @IsOptional()
     @Type(()=>String)
-    description:string
+    description!:string
 
     @ApiProperty()  
     @IsNumber()
     @Type(()=>Number)
-    price:number
+    price!:number
 
     @ApiProperty()
     @IsNumber()
     @Type(()=>Number)
-    duration_month : number
+    duration_month!: number
 
     @ApiProperty()
     @IsNumber()
     @Type(()=>Number)
-    duration_hours : number
+    duration_hours!: number
 
 }
 

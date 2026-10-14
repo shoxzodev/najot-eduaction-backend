@@ -3,7 +3,7 @@ import axios from 'axios';
 
 @Injectable()
 export class EskizService {
-    private token: string;
+    private token!: string;
 
     async login() {
         try {
@@ -19,7 +19,7 @@ export class EskizService {
 
             return this.token;
         } catch (error) {
-            console.log('ERROR:', error.response?.data);
+            console.log('ERROR:',  error.response?.data);
             console.log('STATUS:', error.response?.status);
             console.log('MESSAGE:', error.message);
 

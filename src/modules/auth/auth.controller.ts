@@ -35,4 +35,3 @@ export class AuthController {
         return this.authService.changePassword(payload)
     }    
 }
-  

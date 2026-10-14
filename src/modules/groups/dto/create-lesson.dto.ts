@@ -5,13 +5,13 @@ import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 export class AttendanceItemDto {
     @ApiProperty()
     @IsNumber()
-    student_id: number;
+    student_id!: number;
 }
 
 export class CreateLessonDto {
     @ApiProperty()
     @IsString()
-    topic: string;
+    topic!: string;
 
     @ApiPropertyOptional()
     @IsOptional()
@@ -20,11 +20,11 @@ export class CreateLessonDto {
 
     @ApiProperty({ example: '2026-05-12' })
     @IsDateString()
-    lesson_date: string;
+    lesson_date!: string;
 
     @ApiProperty({ type: [AttendanceItemDto] })
     @IsArray()
     @ValidateNested({ each: true })
     @Type(() => AttendanceItemDto)
-    attendances: AttendanceItemDto[];
+    attendances!: AttendanceItemDto[];
 }

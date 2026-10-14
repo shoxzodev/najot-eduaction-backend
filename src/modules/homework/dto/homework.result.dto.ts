@@ -7,15 +7,15 @@ export class HomeworkResultDto {
     @ApiProperty()
     @IsNumber()
     @Type(() => Number)
-    grade: number
+    grade!: number
 
     @ApiProperty()
     @IsString()
-    title: string
+    title!: string
 
     @ApiProperty()
     @IsNumber()
     @Type(() => Number) 
-    homework_answer_id: number
+    homework_answer_id!: number
 
 }

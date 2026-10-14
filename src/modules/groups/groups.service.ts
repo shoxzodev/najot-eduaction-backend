@@ -914,4 +914,11 @@ export class GroupsService {
             message: "Group updated"
         };
     }
+
+    async getAllGroupUsers() {
+        return {
+            success:true,
+            data: "user"
+        }
+    }
 }

@@ -6,14 +6,14 @@ export class CreateHomeworkDto {
     @ApiProperty()
     @IsNumber()
     @Type(() => Number)
-    lesson_id: number
+    lesson_id!: number
 
     @ApiProperty()
     @IsNumber()
     @Type(() => Number)
-    group_id: number
+    group_id!: number
 
     @ApiProperty()
     @IsString()
-    title: string
+    title!: string
 }

@@ -5,10 +5,10 @@ export class VeifyOtpDto{
     @ApiProperty()
     @IsString()
     @IsPhoneNumber("UZ")
-    phone:string 
+    phone!:string 
 
     @ApiProperty()
     @IsNotEmpty()
     @IsNumberString()
-    otp:number 
+    otp!:number 
 } 

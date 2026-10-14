@@ -5,11 +5,11 @@ import { IsNumber, IsOptional, IsString } from "class-validator"
 export class CreateLessonDto {
     @ApiProperty()
     @IsNumber()
-    group_id : number
+    group_id!: number
 
     @ApiProperty()
     @IsString()
-    topic : string
+    topic!: string
 
     @ApiPropertyOptional()
     @IsOptional()

@@ -1,0 +1,1 @@
+{"version":3,"file":"ecosystem.config.js","sourceRoot":"","sources":["../../src/ecosystem.config.ts"],"names":[],"mappings":"AAAA,MAAM,CAAC,OAAO,GAAG;IACf,IAAI,EAAE;QACJ;YACE,IAAI,EAAE,UAAU;YAChB,MAAM,EAAE,oBAAoB;YAC5B,SAAS,EAAE,CAAC;YACZ,SAAS,EAAE,MAAM;YACjB,WAAW,EAAE,IAAI;YACjB,KAAK,EAAE,KAAK;YACZ,GAAG,EAAE;gBACH,QAAQ,EAAE,YAAY;aACvB;SACF;KACF;CACF,CAAC"}

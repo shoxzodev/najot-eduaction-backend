@@ -1,32 +1,35 @@
 import { ApiProperty } from "@nestjs/swagger"
 import { Transform } from "class-transformer"
-import { IsDateString, IsEmail, IsMobilePhone, IsOptional, IsString } from "class-validator"
+import { IsDateString, IsEmail, IsOptional, IsString, Matches } from "class-validator"
 
 
 export class CreateStudentDto {
     @ApiProperty()
     @IsString()
-    full_name: string
+    full_name!: string
 
     @ApiProperty()
     @IsString()
-    password: string
+    password!: string
 
     @ApiProperty()
-    @IsMobilePhone()
-    phone: string
+    @Matches(/^\+998|998(?:90|91|93|94|95|97|98|99|88|33|77)\d{7}$/, {
+        message: 'Invalid Uzbekistan phone number'
+    })
+
+    phone!: string
 
     @ApiProperty()
     @IsEmail()
-    email: string
+    email!: string
 
     @ApiProperty()
     @IsDateString()
-    birth_date: string
+    birth_date!: string
 
     @ApiProperty()
     @IsString()
-    address: string
+    address!: string
 
     @ApiProperty({ type: [Number], example: [1, 2, 3] })
     @IsOptional()

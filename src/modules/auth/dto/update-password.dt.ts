@@ -5,10 +5,10 @@ export class UpdatePasswordDto{
     @ApiProperty()
     @IsString()
     @IsPhoneNumber("UZ")
-    phone:string
+    phone!:string
 
     @ApiProperty()
     @IsString()
     @IsNotEmpty()
-    password:string 
+    password!:string 
 }

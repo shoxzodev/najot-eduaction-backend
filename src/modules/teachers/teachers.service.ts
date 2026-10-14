@@ -238,7 +238,7 @@ export class TeachersService {
             }
         })
 
-        await this.smsService.sendSms(payload.phone[0] == "+" ? payload.phone : "+" + payload.phone, `NajotEdu kabinetingiz https://najotedu.softwareengineer.uz/login.\n Login: ${payload.phone} Parol: ${payload.password}}`)
+        // await this.smsService.sendSms(payload.phone[0] == "+" ? payload.phone : "+" + payload.phone, `NajotEdu kabinetingiz https://najotedu.softwareengineer.uz/login.\n Login: ${payload.phone} Parol: ${payload.password}}`)
 
         return {
             success:true,

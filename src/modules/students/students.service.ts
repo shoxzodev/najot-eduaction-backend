@@ -8,6 +8,7 @@ import { EmailService } from 'src/common/email/email.service';
 import { PaginationDto } from './dto/pagination.dto';
 import { CreateHomeworkAnswerDto } from './dto/create.homework.dto';
 import { EskizService } from 'src/common/service/sms';
+import { tryLoadPackage } from '@nestjs/common/internal';
 
 @Injectable()
 export class StudentsService {
@@ -234,8 +235,7 @@ export class StudentsService {
         })
 
         if(existStudent){
-
-            throw new ConflictException()
+            throw new ConflictException("user with this phone or email already exists")
         }
 
         const existGroups = await this.prisma.group.findMany({
@@ -267,10 +267,6 @@ export class StudentsService {
             }
         })
  
-        await this.smsService.sendSms(payload.phone, `NajotEdu kabinetingiz https://najotedu.softwareengineer.uz/login.\n Login: ${payload.phone} Parol: ${payload.password}}`)
-
-        // await this.emailService.sendEmail(payload.email,payload.phone,payload.password)
-
         return {
             success:true,
             message:"Student created"

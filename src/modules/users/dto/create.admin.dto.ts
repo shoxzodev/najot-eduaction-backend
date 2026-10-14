@@ -1,33 +1,32 @@
 import { ApiProperty } from "@nestjs/swagger"
-import { Role } from "@prisma/client"
-import { IsEmail, IsEnum, IsMobilePhone, IsNotEmpty, IsString, IsStrongPassword } from "class-validator"
+import { IsEmail, IsMobilePhone, IsNotEmpty, IsString, IsStrongPassword } from "class-validator"
 
 export class CreateAdminDto {
     @ApiProperty()
     @IsString()
     @IsNotEmpty()
-    first_name: string
+    first_name!: string
 
     @ApiProperty()
     @IsString()
     @IsNotEmpty()
-    last_name: string
+    last_name!: string
 
     @ApiProperty()
     @IsStrongPassword()
-    password: string
+    password!: string
 
     @ApiProperty()
     @IsMobilePhone("uz-UZ")
-    phone: string
+    phone!: string
 
     @ApiProperty()
     @IsEmail()
     @IsNotEmpty()
-    email: string
+    email!: string
 
     @ApiProperty()
     @IsString()
     @IsNotEmpty()
-    address: string
+    address!: string
 }
