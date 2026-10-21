@@ -107,8 +107,8 @@ let AuthService = class AuthService {
                     success: true,
                     message: "You're logged",
                     role: client_1.Role.TEACHER,
-                    accessToken: this.jwtGenerateToken.generateAccessToken({ id: existteacher.id, email: existteacher.email, role: client_1.Role.TEACHER }),
-                    refreshToken: this.jwtGenerateToken.generateRefreshToken({ id: existteacher.id, email: existteacher.email, role: client_1.Role.TEACHER })
+                    accessToken: this.jwtGenerateToken.generateAccessToken({ id: existteacher.id, phone: existteacher.phone, email: existteacher.email, role: client_1.Role.TEACHER }),
+                    refreshToken: this.jwtGenerateToken.generateRefreshToken({ id: existteacher.id, phone: existteacher.phone, email: existteacher.email, role: client_1.Role.TEACHER })
                 };
             }
             const isMatch = await bcrypt.compare(payload.password, existStudent.password);
@@ -119,8 +119,8 @@ let AuthService = class AuthService {
                 success: true,
                 message: "You're logged",
                 role: client_1.Role.STUDENT,
-                accessToken: this.jwtGenerateToken.generateAccessToken({ id: existStudent.id, email: existStudent.email, role: client_1.Role.STUDENT }),
-                refreshToken: this.jwtGenerateToken.generateRefreshToken({ id: existStudent.id, email: existStudent.email, role: client_1.Role.STUDENT })
+                accessToken: this.jwtGenerateToken.generateAccessToken({ id: existStudent.id, phone: existStudent.phone, email: existStudent.email, role: client_1.Role.STUDENT }),
+                refreshToken: this.jwtGenerateToken.generateRefreshToken({ id: existStudent.id, phone: existStudent.phone, email: existStudent.email, role: client_1.Role.STUDENT })
             };
         }
         const isMatch = await bcrypt.compare(payload.password, existUser.password);
@@ -131,8 +131,8 @@ let AuthService = class AuthService {
             success: true,
             message: "You're logged",
             role: existUser.role,
-            accessToken: this.jwtGenerateToken.generateAccessToken({ id: existUser.id, email: existUser.email, role: existUser.role }),
-            refreshToken: this.jwtGenerateToken.generateRefreshToken({ id: existUser.id, email: existUser.email, role: existUser.role })
+            accessToken: this.jwtGenerateToken.generateAccessToken({ id: existUser.id, email: existUser.email, phone: existUser.phone, role: existUser.role }),
+            refreshToken: this.jwtGenerateToken.generateRefreshToken({ id: existUser.id, email: existUser.email, phone: existUser.phone, role: existUser.role })
         };
     }
     async sendOtpPhone(payload) {

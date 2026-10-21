@@ -1,0 +1,63 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: najot_edu_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${DB_USER:-postgres}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-12345}
+      POSTGRES_DB: ${DB_NAME:-erp_n27}
+    ports:
+      - "${DB_PORT:-5433}:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-postgres} -d ${DB_NAME:-erp_n27}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    container_name: najot_edu_redis
+    restart: unless-stopped
+    ports:
+      - "${REDIS_PORT:-6380}:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: najot_edu_api
+    restart: unless-stopped
+    ports:
+      - "${PORT:-4400}:${PORT:-4400}"
+    environment:
+      PORT: ${PORT:-4400}
+      DATABASE_URL: postgresql://${DB_USER:-postgres}:${DB_PASSWORD:-12345}@postgres:5432/${DB_NAME:-erp_n27}?schema=public
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      deploy: PROD
+      JWT_SECRET: ${JWT_SECRET:-shaptoli}
+      EMAIL: ${EMAIL:-}
+      ESKIZ_EMAIL: ${ESKIZ_EMAIL:-}
+      ESKIZ_PASSWORD: ${ESKIZ_PASSWORD:-}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    volumes:
+      - uploads_data:/app/src/uploads
+
+volumes:
+  postgres_data:
+  redis_data:
+  uploads_data:

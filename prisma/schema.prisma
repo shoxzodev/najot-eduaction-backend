@@ -200,7 +200,7 @@ model HomeworkAnswerStudent {
 }
 
 model HomeworkResult {
-  id                    Int                   @id @default(autoincrement())
+  id                    Int                  @id @default(autoincrement())
   homework_answer_id    Int
   teacher_id            Int?
   user_id               Int?
@@ -286,5 +286,4 @@ enum GroupStatus {
   active
   completed
   inactive
-} 
- 
+}

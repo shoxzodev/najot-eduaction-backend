@@ -59,9 +59,11 @@ export class StudentsController {
         return this.studentService.getOneStudent(id);
     }
 
+
+    // create student:
     @ApiOperation({
         summary: `${Role.SUPERADMIN}, ${Role.ADMIN}`,
-        description: "Bu endpointga admin va superadmin huquqi bor"
+        description: "Bu endpointga admin va superadmin huquqi bor",
     })
     @UseGuards(AuthGuard, RolesGuard)
     @Roles(Role.SUPERADMIN, Role.ADMIN)

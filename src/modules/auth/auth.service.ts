@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { PrismaService } from 'src/core/database/prisma.service';
 import { LoginDto } from './dto/login.dto';
 import * as bcrypt from 'bcrypt';
@@ -72,8 +72,8 @@ export class AuthService {
                     success: true,
                     message: "You're logged",
                     role: Role.TEACHER, 
-                    accessToken: this.jwtGenerateToken.generateAccessToken({ id: existteacher.id, email: existteacher.email, role: Role.TEACHER }),
-                    refreshToken: this.jwtGenerateToken.generateRefreshToken({ id: existteacher.id, email: existteacher.email, role: Role.TEACHER })
+                    accessToken: this.jwtGenerateToken.generateAccessToken({ id: existteacher.id, phone:existteacher.phone ,email: existteacher.email, role: Role.TEACHER }),
+                    refreshToken: this.jwtGenerateToken.generateRefreshToken({ id: existteacher.id, phone:existteacher.phone , email: existteacher.email, role: Role.TEACHER })
                 }
             }
 
@@ -86,8 +86,8 @@ export class AuthService {
                 success: true,
                 message: "You're logged",
                 role: Role.STUDENT,
-                accessToken: this.jwtGenerateToken.generateAccessToken({ id: existStudent.id, email: existStudent.email, role: Role.STUDENT }),
-                refreshToken: this.jwtGenerateToken.generateRefreshToken({ id: existStudent.id, email: existStudent.email, role: Role.STUDENT })
+                accessToken: this.jwtGenerateToken.generateAccessToken({ id: existStudent.id, phone:existStudent.phone , email: existStudent.email, role: Role.STUDENT }),
+                refreshToken: this.jwtGenerateToken.generateRefreshToken({ id: existStudent.id, phone:existStudent.phone ,email: existStudent.email, role: Role.STUDENT })
             }
 
         }
@@ -101,8 +101,8 @@ export class AuthService {
             success: true,
             message: "You're logged",
             role: existUser.role,
-            accessToken: this.jwtGenerateToken.generateAccessToken({ id: existUser.id, email: existUser.email, role: existUser.role }),
-            refreshToken: this.jwtGenerateToken.generateRefreshToken({ id: existUser.id, email: existUser.email, role: existUser.role })
+            accessToken: this.jwtGenerateToken.generateAccessToken({ id: existUser.id, email: existUser.email, phone:existUser.phone , role: existUser.role }),
+            refreshToken: this.jwtGenerateToken.generateRefreshToken({ id: existUser.id, email: existUser.email, phone:existUser.phone , role: existUser.role })
         }
     }
 

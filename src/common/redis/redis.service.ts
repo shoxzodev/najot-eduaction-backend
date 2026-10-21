@@ -10,7 +10,7 @@ export class RedisService implements OnModuleInit {
         })
     }
     async set(key: string, value: number){
-        await this.clint.set(key, value, "EX", 120) 
+        await this.clint.set(key, value, "EX", 120)
     }
 
     async get(key:string){  

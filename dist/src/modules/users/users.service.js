@@ -97,6 +97,192 @@ let UsersService = class UsersService {
             message: "create admin successfully"
         };
     }
+    async getUserInfo(userData) {
+        if (userData.role == "TEACHER") {
+            const teachers = this
+                .prisma
+                .teacher
+                .findUnique({ where: { id: userData.id }, select: {
+                    id: true,
+                    full_name: true,
+                    email: true,
+                    phone: true,
+                    photo: true
+                } });
+            const teacherGroup = this
+                .prisma
+                .groupTeacher
+                .findMany({
+                where: { teacher_id: userData.id },
+                select: {
+                    Group: {}
+                }
+            });
+            const main = await Promise.all([teachers, teacherGroup]);
+            const normalizeGroup = main[1].reduce((acc, item) => {
+                acc.push({
+                    id: item.Group.course_id,
+                    name: item.Group.name
+                });
+                return acc;
+            }, []);
+            return {
+                success: true,
+                user: main[0],
+                role: userData.role,
+                groups: normalizeGroup
+            };
+        }
+        else if (userData.role == "STUDENT") {
+            const student = this.prisma.student.findUnique({ where: { id: userData.id }, select: {
+                    id: true,
+                    full_name: true,
+                    email: true,
+                    phone: true,
+                    photo: true
+                } });
+            const studentGroup = this.prisma.studentGroup.findMany({ where: {
+                    id: userData.id
+                },
+                select: {
+                    groups: {
+                        select: {
+                            id: true,
+                            name: true
+                        }
+                    }
+                }
+            });
+            const parallel = await Promise.all([student, studentGroup]);
+            const normalizeGroup = parallel[1].reduce((acc, item) => {
+                acc.push({ id: item.groups.id, name: item.groups.name });
+                return acc;
+            }, []);
+            return {
+                success: true,
+                user: parallel[0],
+                group: normalizeGroup
+            };
+        }
+        else if (userData.role == "ADMIN") {
+            const admin = await this.prisma.user.findUnique({ where: { id: userData.id }, select: {
+                    id: true,
+                    first_name: true,
+                    last_name: true,
+                    email: true,
+                    photo: true,
+                    role: true
+                } });
+            return {
+                success: true,
+                user: admin
+            };
+        }
+        else {
+            const superadmin = await this.prisma.user.findUnique({ where: { id: userData.id }, select: {
+                    id: true,
+                    first_name: true,
+                    last_name: true,
+                    phone: true,
+                    email: true,
+                    photo: true,
+                    role: true
+                } });
+            return {
+                success: true,
+                user: superadmin
+            };
+        }
+    }
+    async changeUserInfo(userData, payload, file) {
+        if (userData.role == "STUDENT") {
+            const existStudent = await this.prisma.student.findUnique({ where: { id: userData.id }, select: {
+                    email: true,
+                    password: true,
+                    photo: true,
+                    phone: true
+                } });
+            const verifyPassword = bcrypt.compareSync(payload.current_password, existStudent?.password);
+            if (!verifyPassword)
+                throw new common_1.ConflictException("user's current password incorrect");
+            const newPassword = bcrypt.hashSync(payload.new_password, 10);
+            const image = Date.now() + "." + file?.mimetype.split("/")[1];
+            try {
+                await this.prisma.student.update({ where: { id: userData.id }, data: {
+                        email: payload.email ? payload.email : existStudent?.email,
+                        phone: payload.phone ? payload.phone : existStudent?.phone,
+                        password: payload.new_password ? newPassword : existStudent?.password,
+                        photo: image ? image : payload.phone
+                    } });
+                return {
+                    success: true,
+                    message: "user updated successfully"
+                };
+            }
+            catch (err) {
+                if (err instanceof Error && err.name == "PrismaClientKnownRequestError")
+                    throw new common_1.ConflictException("user's email or phone already exists");
+            }
+        }
+        else if (userData.role == "TEACHER") {
+            const existTeacher = await this.prisma.teacher.findUnique({ where: { id: userData.id }, select: {
+                    email: true,
+                    password: true,
+                    photo: true,
+                    phone: true
+                } });
+            const verifyPassword = bcrypt.compareSync(payload.current_password, existTeacher?.password);
+            if (!verifyPassword)
+                throw new common_1.ConflictException("user's current password incorrect");
+            const newPassword = bcrypt.hashSync(payload.new_password, 10);
+            const image = Date.now() + "." + file?.mimetype.split("/")[1];
+            try {
+                await this.prisma.student.update({ where: { id: userData.id }, data: {
+                        email: payload.email ? payload.email : existTeacher?.email,
+                        phone: payload.phone ? payload.phone : existTeacher?.phone,
+                        password: payload.new_password ? newPassword : existTeacher?.password,
+                        photo: image ? image : payload.phone
+                    } });
+                return {
+                    success: true,
+                    message: "user updated successfully"
+                };
+            }
+            catch (err) {
+                if (err instanceof Error && err.name == "PrismaClientKnownRequestError")
+                    throw new common_1.ConflictException("user's email or phone already exists");
+            }
+        }
+        else {
+            const existAdmin = await this.prisma.user.findUnique({ where: { id: userData.id }, select: {
+                    email: true,
+                    password: true,
+                    photo: true,
+                    phone: true
+                } });
+            const verifyPassword = bcrypt.compareSync(payload.current_password, existAdmin?.password);
+            if (!verifyPassword)
+                throw new common_1.ConflictException("user's current password incorrect");
+            const newPassword = bcrypt.hashSync(payload.new_password, 10);
+            const image = Date.now() + "." + file?.mimetype.split("/")[1];
+            try {
+                await this.prisma.student.update({ where: { id: userData.id }, data: {
+                        email: payload.email ? payload.email : existAdmin?.email,
+                        phone: payload.phone ? payload.phone : existAdmin?.phone,
+                        password: payload.new_password ? newPassword : existAdmin?.password,
+                        photo: image ? image : payload.phone
+                    } });
+                return {
+                    success: true,
+                    message: "user updated successfully"
+                };
+            }
+            catch (err) {
+                if (err instanceof Error && err.name == "PrismaClientKnownRequestError")
+                    throw new common_1.ConflictException("user's email or phone already exists");
+            }
+        }
+    }
 };
 exports.UsersService = UsersService;
 exports.UsersService = UsersService = __decorate([

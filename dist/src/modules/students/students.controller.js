@@ -108,7 +108,7 @@ __decorate([
 __decorate([
     (0, swagger_1.ApiOperation)({
         summary: `${client_1.Role.SUPERADMIN}, ${client_1.Role.ADMIN}`,
-        description: "Bu endpointga admin va superadmin huquqi bor"
+        description: "Bu endpointga admin va superadmin huquqi bor",
     }),
     (0, common_1.UseGuards)(jwt_auth_guard_1.AuthGuard, role_guard_1.RolesGuard),
     (0, role_1.Roles)(client_1.Role.SUPERADMIN, client_1.Role.ADMIN),

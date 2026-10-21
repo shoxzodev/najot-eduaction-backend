@@ -12,6 +12,7 @@ async function bootstrap() {
   }))
 
   app.enableCors()
+
   app.setGlobalPrefix("api/v1")
 
   // Static fayllarni serve qilish (rasm va videolar)
@@ -24,7 +25,7 @@ async function bootstrap() {
   const config = new DocumentBuilder()
     .setTitle("CRM N26 group")
     .addBearerAuth()
-    .build()
+    .build()  
 
   const documentFactory = () => SwaggerModule.createDocument(app, config)
   SwaggerModule.setup("swagger", app, documentFactory, {
