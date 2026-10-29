@@ -1,41 +1,81 @@
+name: CI/CD Pipeline
+
 on:
   push:
     branches:
       - main
+  workflow_dispatch:
 
 jobs:
-  deploy:
+  # ============================================================
+  # 1. CI - Сборка, тесты и валидация Docker
+  # ============================================================
+  ci:
+    name: Build & Test
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
+      - name: 📥 Checkout repository
+        uses: actions/checkout@v4
 
-      - name: Deploy over SSH and run Docker Compose
+      - name: 🟢 Setup Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'npm'
+
+      - name: 📦 Install dependencies
+        run: npm install --legacy-peer-deps
+
+      - name: ⛁ Generate Prisma Client
+        run: npx prisma generate
+
+      - name: 🔨 Build NestJS application
+        run: npm run build
+
+      - name: 🧪 Run tests
+        run: npm test -- --passWithNoTests
+
+  # ============================================================
+  # 2. CD - Автоматический деплой на сервер через SSH
+  # ============================================================
+  deploy:
+    name: Deploy to Server
+    runs-on: ubuntu-latest
+    needs: ci
+    if: github.ref == 'refs/heads/main'
+
+    steps:
+      - name: 🚀 Deploy via SSH
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_KEY }}
           script: |
-            echo "Creating project folder if it doesn't exist!"
-            mkdir -p /ubuntu
-            cd /ubuntu
+            set -e
+            PROJECT_DIR="$HOME/najot-eduaction-backend"
 
-            if [ ! -d "najot-eduaction-backend/.git" ]; then
-              echo "Cloning repository!" 
-              git clone https://github.com/shoxzodev/najot-eduaction-backend.git
-            else
-              echo "Pulling latest changes!"
-              cd  ubuntu/najot-eduaction-backend
-              git pull origin main  
+            echo "=== Checking project directory ==="
+            if [ ! -d "$PROJECT_DIR/.git" ]; then
+              echo "Cloning repository..."
+              git clone https://github.com/shoxzodev/najot-eduaction-backend.git "$PROJECT_DIR"
             fi
-  
-            echo "Stopping containers"
-            docker compose down
 
-            echo "Building containers"
-            docker compose build 
+            cd "$PROJECT_DIR"
 
-            echo "Running containers"
-            docker compose up -d 
+            echo "=== Pulling latest changes ==="
+            git fetch origin main
+            git reset --hard origin/main
+
+            echo "=== Stopping old containers ==="
+            docker compose down --remove-orphans || true
+
+            echo "=== Building and starting containers ==="
+            docker compose up -d --build
+
+            echo "=== Cleaning up old images ==="
+            docker image prune -f
+
+            echo "=== Deployment complete! Container status: ==="
+            docker compose ps
