@@ -11,7 +11,14 @@ async function bootstrap() {
     whitelist: true
   }))
  
-  app.enableCors()
+  app.enableCors({
+  origin: [
+    'http://localhost:5173',
+    'https://najot-eduaction.vercel.app/',
+  ],
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
+  credentials: true,
+  });
   app.setGlobalPrefix("api/v1")
 
   // Static fayllarni serve qilish (rasm va videolar)
