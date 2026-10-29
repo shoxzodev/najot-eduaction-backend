@@ -5,9 +5,9 @@ import { IsNumber } from "class-validator";
 export class CreateStudentGroupDto {
     @ApiProperty()
     @IsNumber()
-    student_id:number
+    student_id!:number
 
     @ApiProperty()
     @IsNumber()
-    group_id:number
+    group_id!:number
 }

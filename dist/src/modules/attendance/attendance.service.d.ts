@@ -8,12 +8,12 @@ export declare class AttendanceService {
         seccess: boolean;
         data: {
             id: number;
-            group_id: number;
-            teacher_id: number | null;
-            user_id: number | null;
             created_at: Date;
             update_at: Date;
+            group_id: number;
+            teacher_id: number | null;
             student_id: number;
+            user_id: number | null;
             isPresent: boolean;
         }[];
     }>;

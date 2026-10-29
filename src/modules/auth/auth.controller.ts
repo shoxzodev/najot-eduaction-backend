@@ -4,7 +4,7 @@ import { AuthService } from './auth.service';
 import { UpdatePasswordDto } from './dto/update-password.dt';
 import { VeifyPhoneDto } from './dto/verify-phone.dto';
 import { VeifyOtpDto } from './dto/verify-otp.dto';
-import { RefreshTokenDto } from './dto/refresh-token.dto';
+import { RefreshTokenDto } from './dto/refresh-token.dto'
 
 @Controller('auth')
 export class AuthController {

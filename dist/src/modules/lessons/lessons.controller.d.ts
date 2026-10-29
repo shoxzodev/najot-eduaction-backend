@@ -16,8 +16,8 @@ export declare class LessonsController {
         success: boolean;
         data: {
             id: number;
-            topic: string;
             created_at: Date;
+            topic: string;
         }[];
     }>;
     getLessonHomeworks(groupId: number, lessonId: number, req: Request): Promise<{
@@ -81,14 +81,14 @@ export declare class LessonsController {
         sucess: boolean;
         data: {
             id: number;
-            group_id: number;
-            teacher_id: number | null;
-            user_id: number | null;
-            topic: string;
-            description: string | null;
             status: import(".prisma/client").$Enums.Status;
             created_at: Date;
             update_at: Date;
+            group_id: number;
+            teacher_id: number | null;
+            description: string | null;
+            user_id: number | null;
+            topic: string;
         }[];
     }>;
     createLesson(payload: CreateLessonDto, req: Request): Promise<{

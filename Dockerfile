@@ -8,11 +8,11 @@ WORKDIR /app
 # Install system libraries needed by Prisma and native modules on Alpine
 RUN apk add --no-cache openssl libc6-compat
 
-# Copy dependency specifications and Prisma schema first for layer caching
-COPY package*.json ./
+# Copy dependency specifications, prisma config and schema first for layer caching
+COPY package*.json prisma.config.ts* ./
 COPY prisma ./prisma/
 
-# Install all dependencies (including devDependencies required for compilation)
+# Install all dependencies (including devDependencies needed for build)
 RUN npm install --legacy-peer-deps
 
 # Generate Prisma Client
@@ -36,17 +36,19 @@ RUN apk add --no-cache openssl libc6-compat
 
 ENV NODE_ENV=production
 
-# Copy package definitions and node_modules from builder
+# Copy built app and required files
 COPY package*.json ./
+COPY --from=builder /app/prisma.config.ts* ./
 COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/prisma ./prisma
 COPY --from=builder /app/src/templates ./src/templates
+COPY --from=builder /app/src/uploads ./src/uploads
 
-# Create upload directory for static assets
-RUN mkdir -p /app/src/uploads
+# Create upload directories for images and video files
+RUN mkdir -p /app/src/uploads/files
 
-# Expose port (default 4400)
+# Expose application port
 EXPOSE 4400
 
 # Run database migrations and start the application

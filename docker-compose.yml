@@ -5,9 +5,10 @@ services:
     restart: unless-stopped
     environment:
       POSTGRES_USER: ${DB_USER:-postgres}
-      POSTGRES_PASSWORD: ${DB_PASSWORD:-12345}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-postgres}
       POSTGRES_DB: ${DB_NAME:-erp_n27}
     ports:
+      # Внешний порт 5433 предотвращает конфликт с локальным PostgreSQL на 5432
       - "${DB_PORT:-5433}:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
@@ -16,20 +17,8 @@ services:
       interval: 5s
       timeout: 5s
       retries: 5
-
-  redis:
-    image: redis:7-alpine
-    container_name: najot_edu_redis
-    restart: unless-stopped
-    ports:
-      - "${REDIS_PORT:-6380}:6379"
-    volumes:
-      - redis_data:/data
-    healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
-      interval: 5s
-      timeout: 3s
-      retries: 5
+    networks:
+      - app_network
 
   api:
     build:
@@ -39,25 +28,43 @@ services:
     restart: unless-stopped
     ports:
       - "${PORT:-4400}:${PORT:-4400}"
+    env_file:
+      - path: .env
+        required: false
     environment:
       PORT: ${PORT:-4400}
-      DATABASE_URL: postgresql://${DB_USER:-postgres}:${DB_PASSWORD:-12345}@postgres:5432/${DB_NAME:-erp_n27}?schema=public
-      REDIS_HOST: redis
-      REDIS_PORT: 6379
-      deploy: PROD
+      DATABASE_URL: postgresql://${DB_USER:-postgres}:${DB_PASSWORD:-postgres}@postgres:5432/${DB_NAME:-erp_n27}?schema=public
+      PHONE: ${PHONE:-998975661099}
+      EMAIL: ${EMAIL:-abdukhoshim99@gmail.com}
+      SUPERADMIN_PASSWORD: ${SUPERADMIN_PASSWORD:-Benazir99!}
       JWT_SECRET: ${JWT_SECRET:-shaptoli}
-      EMAIL: ${EMAIL:-}
       ESKIZ_EMAIL: ${ESKIZ_EMAIL:-}
       ESKIZ_PASSWORD: ${ESKIZ_PASSWORD:-}
     depends_on:
       postgres:
         condition: service_healthy
-      redis:
-        condition: service_healthy
     volumes:
-      - uploads_data:/app/src/uploads
+      # Прямой bind-mount папки uploads: все локальные файлы и новые загрузки
+      # синхронизируются между хостом и контейнером в реальном времени
+      - ./src/uploads:/app/src/uploads
+    networks:
+      - app_network
+
+  # Redis (опционально, если потребуется в будущем)
+  # redis:
+  #   image: redis:7-alpine
+  #   container_name: najot_edu_redis
+  #   restart: unless-stopped
+  #   ports:
+  #     - "${REDIS_PORT:-6379}:6379"
+  #   volumes:
+  #     - redis_data:/data
+  #   networks:
+  #     - app_network
 
 volumes:
   postgres_data:
-  redis_data:
-  uploads_data:
+
+networks:
+  app_network:
+    driver: bridge

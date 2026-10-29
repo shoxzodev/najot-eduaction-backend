@@ -2,7 +2,6 @@ import { PrismaService } from "../../core/database/prisma.service";
 import { LoginDto } from './dto/login.dto';
 import { JwtService } from '@nestjs/jwt';
 import { RedisService } from "../../common/redis/redis.service";
-import { EskizService } from "../../common/service/sms";
 import { UpdatePasswordDto } from './dto/update-password.dt';
 import { VeifyOtpDto } from './dto/verify-otp.dto';
 import { JwtGenerateToken } from "../../common/utils/jwt";
@@ -11,9 +10,8 @@ export declare class AuthService {
     private prisma;
     private jwtService;
     private redisService;
-    private eskizService;
     private jwtGenerateToken;
-    constructor(prisma: PrismaService, jwtService: JwtService, redisService: RedisService, eskizService: EskizService, jwtGenerateToken: JwtGenerateToken);
+    constructor(prisma: PrismaService, jwtService: JwtService, redisService: RedisService, jwtGenerateToken: JwtGenerateToken);
     private otpGenerate;
     private sendOtp;
     private verifyPhoneOtp;

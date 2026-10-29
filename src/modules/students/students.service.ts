@@ -4,18 +4,13 @@ import { CreateStudentDto } from './dto/create.dto';
 import { UpdateStudentDto } from './dto/update.dto';
 import * as bcrypt from "bcrypt"
 import { Status, StudentStatus } from '@prisma/client';
-import { EmailService } from 'src/common/email/email.service';
 import { PaginationDto } from './dto/pagination.dto';
 import { CreateHomeworkAnswerDto } from './dto/create.homework.dto';
-import { EskizService } from 'src/common/service/sms';
-import { tryLoadPackage } from '@nestjs/common/internal';
 
 @Injectable()
 export class StudentsService {
     constructor(
         private prisma : PrismaService,
-        private emailService : EmailService,
-        private smsService : EskizService
     ){}
 
     async getMyGroups(currentUser : { id : number}){

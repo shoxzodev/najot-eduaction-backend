@@ -49,19 +49,16 @@ const bcrypt = __importStar(require("bcrypt"));
 const jwt_1 = require("@nestjs/jwt");
 const client_1 = require("@prisma/client");
 const redis_service_1 = require("../../common/redis/redis.service");
-const sms_1 = require("../../common/service/sms");
 const jwt_2 = require("../../common/utils/jwt");
 let AuthService = class AuthService {
     prisma;
     jwtService;
     redisService;
-    eskizService;
     jwtGenerateToken;
-    constructor(prisma, jwtService, redisService, eskizService, jwtGenerateToken) {
+    constructor(prisma, jwtService, redisService, jwtGenerateToken) {
         this.prisma = prisma;
         this.jwtService = jwtService;
         this.redisService = redisService;
-        this.eskizService = eskizService;
         this.jwtGenerateToken = jwtGenerateToken;
     }
     otpGenerate() {
@@ -70,7 +67,6 @@ let AuthService = class AuthService {
     async sendOtp(phone) {
         const code = Number(this.otpGenerate());
         await this.redisService.set(phone, code);
-        await this.eskizService.sendSms(phone, `Fixoo platformasida parolingizni tiklash uchun tasdiqlash kodi: ${code}. Kodni hech kimga bermang!`);
     }
     async verifyPhoneOtp(phone) {
         const isverify = await this.redisService.get(phone + "_verify");
@@ -280,7 +276,6 @@ exports.AuthService = AuthService = __decorate([
     __metadata("design:paramtypes", [prisma_service_1.PrismaService,
         jwt_1.JwtService,
         redis_service_1.RedisService,
-        sms_1.EskizService,
         jwt_2.JwtGenerateToken])
 ], AuthService);
 //# sourceMappingURL=auth.service.js.map

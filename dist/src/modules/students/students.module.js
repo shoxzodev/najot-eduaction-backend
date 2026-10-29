@@ -11,7 +11,6 @@ const common_1 = require("@nestjs/common");
 const students_controller_1 = require("./students.controller");
 const students_service_1 = require("./students.service");
 const email_module_1 = require("../../common/email/email.module");
-const sms_1 = require("../../common/service/sms");
 let StudentsModule = class StudentsModule {
 };
 exports.StudentsModule = StudentsModule;
@@ -19,7 +18,7 @@ exports.StudentsModule = StudentsModule = __decorate([
     (0, common_1.Module)({
         imports: [email_module_1.EmailModule],
         controllers: [students_controller_1.StudentsController],
-        providers: [students_service_1.StudentsService, sms_1.EskizService]
+        providers: [students_service_1.StudentsService]
     })
 ], StudentsModule);
 //# sourceMappingURL=students.module.js.map

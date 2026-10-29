@@ -24,7 +24,6 @@ const attendance_module_1 = require("./modules/attendance/attendance.module");
 const homework_module_1 = require("./modules/homework/homework.module");
 const seed_module_1 = require("./common/seeder/seed.module");
 const files_module_1 = require("./modules/files/files.module");
-const redis_module_1 = require("./common/redis/redis.module");
 const jwt_1 = require("@nestjs/jwt");
 let AppModule = class AppModule {
 };
@@ -55,8 +54,7 @@ exports.AppModule = AppModule = __decorate([
             attendance_module_1.AttendanceModule,
             homework_module_1.HomeworkModule,
             seed_module_1.SeedModule,
-            files_module_1.FilesModule,
-            redis_module_1.RedisModule
+            files_module_1.FilesModule
         ],
     })
 ], AppModule);

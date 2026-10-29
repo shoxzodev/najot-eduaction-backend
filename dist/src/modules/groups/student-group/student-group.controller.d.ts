@@ -7,10 +7,10 @@ export declare class StudentGroupController {
         sucess: boolean;
         data: {
             id: number;
-            group_id: number;
             status: import(".prisma/client").$Enums.Status;
             created_at: Date;
             update_at: Date;
+            group_id: number;
             student_id: number;
         }[];
     }>;

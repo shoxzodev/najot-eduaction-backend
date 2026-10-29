@@ -17,10 +17,10 @@ export declare class HomeworkService {
             update_at: Date;
             user: {
                 id: number;
-                phone: string;
-                photo: string | null;
                 first_name: string;
                 last_name: string;
+                phone: string;
+                photo: string | null;
             } | null;
             teacher?: undefined;
         } | {
@@ -42,13 +42,13 @@ export declare class HomeworkService {
         success: boolean;
         data: {
             id: number;
-            group_id: number;
-            teacher_id: number | null;
-            user_id: number | null;
             created_at: Date;
             update_at: Date;
-            lesson_id: number;
+            group_id: number;
+            teacher_id: number | null;
             title: string;
+            user_id: number | null;
+            lesson_id: number;
             file: string | null;
         }[];
     }>;
@@ -76,12 +76,12 @@ export declare class HomeworkService {
             status: any;
             id?: number | undefined;
             created_at?: Date | undefined;
-            title?: string | undefined;
-            file?: string | null | undefined;
             students?: {
                 id: number;
                 full_name: string;
             } | undefined;
+            title?: string | undefined;
+            file?: string | null | undefined;
         };
     }>;
     getGroupHomework(groupId: number, currentUser: {

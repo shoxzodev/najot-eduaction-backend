@@ -4,13 +4,11 @@ import { CreateTeacherDto } from './dto/create.dto';
 import { UpdateTeacherDto } from './dto/update.dto';
 import * as bcrypt from "bcrypt"
 import { Status, TeacherGroupStatus } from '@prisma/client';
-import { EskizService } from 'src/common/service/sms';
 
 @Injectable()
 export class TeachersService {
     constructor(
         private prisma : PrismaService,
-        private smsService : EskizService 
     ){}
 
     async getAllTeachers(){

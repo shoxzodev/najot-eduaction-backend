@@ -5,7 +5,6 @@ import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
 import { Role } from '@prisma/client';
 import { RedisService } from 'src/common/redis/redis.service';
-import { EskizService } from 'src/common/service/sms';
 import { UpdatePasswordDto } from './dto/update-password.dt';
 import { VeifyOtpDto } from './dto/verify-otp.dto';
 import { JwtGenerateToken } from 'src/common/utils/jwt';
@@ -17,7 +16,6 @@ export class AuthService {
         private prisma: PrismaService,
         private jwtService: JwtService,
         private redisService: RedisService,
-        private eskizService: EskizService,
         private jwtGenerateToken: JwtGenerateToken
     ) { }
 
@@ -28,7 +26,6 @@ export class AuthService {
     private async sendOtp(phone: string) {
         const code = Number(this.otpGenerate());
         await this.redisService.set(phone, code)
-        await this.eskizService.sendSms(phone, `Fixoo platformasida parolingizni tiklash uchun tasdiqlash kodi: ${code}. Kodni hech kimga bermang!`)
     }
 
     private async verifyPhoneOtp(phone:string) {

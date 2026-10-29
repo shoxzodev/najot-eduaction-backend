@@ -80,22 +80,22 @@ export declare class LessonsService {
         success: boolean;
         data: {
             id: number;
-            topic: string;
             created_at: Date;
+            topic: string;
         }[];
     }>;
     getAllLessons(): Promise<{
         sucess: boolean;
         data: {
             id: number;
-            group_id: number;
-            teacher_id: number | null;
-            user_id: number | null;
-            topic: string;
-            description: string | null;
             status: import(".prisma/client").$Enums.Status;
             created_at: Date;
             update_at: Date;
+            group_id: number;
+            teacher_id: number | null;
+            description: string | null;
+            user_id: number | null;
+            topic: string;
         }[];
     }>;
     createLesson(payload: CreateLessonDto, currentUser: {

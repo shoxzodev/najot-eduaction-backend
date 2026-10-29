@@ -15,7 +15,6 @@ import { AttendanceModule } from './modules/attendance/attendance.module';
 import { HomeworkModule } from './modules/homework/homework.module';
 import { SeedModule } from './common/seeder/seed.module';
 import { FilesModule } from './modules/files/files.module';
-import { RedisModule } from './common/redis/redis.module';
 import { JwtModule } from '@nestjs/jwt';
 
 @Module({
@@ -44,8 +43,7 @@ import { JwtModule } from '@nestjs/jwt';
     AttendanceModule,
     HomeworkModule,
     SeedModule,
-    FilesModule,
-    RedisModule
+    FilesModule  
   ],
 })
 export class AppModule { }

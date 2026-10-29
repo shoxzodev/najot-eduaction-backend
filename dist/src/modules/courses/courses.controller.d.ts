@@ -8,11 +8,11 @@ export declare class CoursesController {
         success: boolean;
         data: {
             id: number;
-            description: string | null;
             status: import(".prisma/client").$Enums.Status;
             created_at: Date;
             update_at: Date;
             name: string;
+            description: string | null;
             price: import("@prisma/client/runtime/library").Decimal;
             duration_hours: number;
             duration_month: number;
@@ -22,11 +22,11 @@ export declare class CoursesController {
         success: boolean;
         data: {
             id: number;
-            description: string | null;
             status: import(".prisma/client").$Enums.Status;
             created_at: Date;
             update_at: Date;
             name: string;
+            description: string | null;
             price: import("@prisma/client/runtime/library").Decimal;
             duration_hours: number;
             duration_month: number;
@@ -36,11 +36,11 @@ export declare class CoursesController {
         success: boolean;
         data: {
             id: number;
-            description: string | null;
             status: import(".prisma/client").$Enums.Status;
             created_at: Date;
             update_at: Date;
             name: string;
+            description: string | null;
             price: import("@prisma/client/runtime/library").Decimal;
             duration_hours: number;
             duration_month: number;

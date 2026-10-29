@@ -1,15 +1,11 @@
 import { PrismaService } from "../../core/database/prisma.service";
 import { CreateStudentDto } from './dto/create.dto';
 import { UpdateStudentDto } from './dto/update.dto';
-import { EmailService } from "../../common/email/email.service";
 import { PaginationDto } from './dto/pagination.dto';
 import { CreateHomeworkAnswerDto } from './dto/create.homework.dto';
-import { EskizService } from "../../common/service/sms";
 export declare class StudentsService {
     private prisma;
-    private emailService;
-    private smsService;
-    constructor(prisma: PrismaService, emailService: EmailService, smsService: EskizService);
+    constructor(prisma: PrismaService);
     getMyGroups(currentUser: {
         id: number;
     }): Promise<{

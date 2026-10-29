@@ -1,11 +1,9 @@
 import { PrismaService } from "../../core/database/prisma.service";
 import { CreateTeacherDto } from './dto/create.dto';
 import { UpdateTeacherDto } from './dto/update.dto';
-import { EskizService } from "../../common/service/sms";
 export declare class TeachersService {
     private prisma;
-    private smsService;
-    constructor(prisma: PrismaService, smsService: EskizService);
+    constructor(prisma: PrismaService);
     getAllTeachers(): Promise<{
         success: boolean;
         data: {

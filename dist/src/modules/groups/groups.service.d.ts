@@ -18,12 +18,12 @@ export declare class GroupsService {
         success: boolean;
         data: {
             id: number;
-            created_at: Date;
             phone: string;
             email: string;
-            birth_date: Date;
+            created_at: Date;
             photo: string | null;
             full_name: string;
+            birth_date: Date;
         }[];
     }>;
     getArchiveGroups(): Promise<{
@@ -118,11 +118,11 @@ export declare class GroupsService {
         message: string;
         data: {
             id: number;
-            description: string | null;
             status: import(".prisma/client").$Enums.GroupStatus;
             created_at: Date;
             update_at: Date;
             name: string;
+            description: string | null;
             course_id: number;
             room_id: number;
             start_date: Date;
@@ -137,14 +137,14 @@ export declare class GroupsService {
         message: string;
         data: {
             id: number;
-            group_id: number;
-            teacher_id: number | null;
-            user_id: number | null;
-            topic: string;
-            description: string | null;
             status: import(".prisma/client").$Enums.Status;
             created_at: Date;
             update_at: Date;
+            group_id: number;
+            teacher_id: number | null;
+            description: string | null;
+            user_id: number | null;
+            topic: string;
         };
     }>;
     getLessonByDate(groupId: number, dateStr: string): Promise<{

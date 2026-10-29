@@ -55,32 +55,30 @@ let UserSeeder = UserSeeder_1 = class UserSeeder {
         this.prisma = prisma;
     }
     async seedUsers() {
-        const phone = '998975661099';
-        const password = process.env.SUPERADMIN_PASSWORD || "Benazir99!";
-        this.logger.log('Seeding SUPERADMIN with email superadmin@example.com');
+        const phone = process.env.PHONE || '998975661099';
+        const email = process.env.EMAIL || 'abdukhoshim99@gmail.com';
+        const password = process.env.SUPERADMIN_PASSWORD || 'Benazir99!';
+        this.logger.log(`Seeding SUPERADMIN with email ${email} and phone ${phone}`);
         const passwordHash = await bcrypt.hash(password, 10);
-        const superAdmin = await this.prisma.user.upsert({
-            where: { phone },
-            update: {
+        const existSuperAdmin = await this.prisma.user.findUnique({ where: { phone } });
+        if (existSuperAdmin) {
+            this.logger.log(`SUPERADMIN already exists: ${existSuperAdmin.email}`);
+            return;
+        }
+        const created = await this.prisma.user.create({
+            data: {
                 first_name: 'SUPERADMIN',
                 last_name: 'SUPERADMIN',
                 password: passwordHash,
                 role: client_1.Role.SUPERADMIN,
-                photo: null,
-            },
-            create: {
-                first_name: 'SUPERADMIN',
-                last_name: 'SUPERADMIN',
-                email: 'abdukhoshim99@gmail.com',
-                address: 'Tashkent',
                 phone,
-                password: passwordHash,
-                role: client_1.Role.SUPERADMIN,
-                photo: null,
+                photo: 'superadmin.png',
+                email,
+                address: 'tashkent city',
+                status: client_1.Status.active,
             },
-            select: { id: true },
         });
-        this.logger.log(`SUPERADMIN seed synced: ${JSON.stringify(superAdmin)}`);
+        this.logger.log(`SUPERADMIN created: ${JSON.stringify(created)}`);
     }
 };
 exports.UserSeeder = UserSeeder;

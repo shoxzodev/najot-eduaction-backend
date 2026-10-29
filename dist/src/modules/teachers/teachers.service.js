@@ -47,13 +47,10 @@ const common_1 = require("@nestjs/common");
 const prisma_service_1 = require("../../core/database/prisma.service");
 const bcrypt = __importStar(require("bcrypt"));
 const client_1 = require("@prisma/client");
-const sms_1 = require("../../common/service/sms");
 let TeachersService = class TeachersService {
     prisma;
-    smsService;
-    constructor(prisma, smsService) {
+    constructor(prisma) {
         this.prisma = prisma;
-        this.smsService = smsService;
     }
     async getAllTeachers() {
         const teachers = await this.prisma.teacher.findMany({
@@ -347,7 +344,6 @@ let TeachersService = class TeachersService {
 exports.TeachersService = TeachersService;
 exports.TeachersService = TeachersService = __decorate([
     (0, common_1.Injectable)(),
-    __metadata("design:paramtypes", [prisma_service_1.PrismaService,
-        sms_1.EskizService])
+    __metadata("design:paramtypes", [prisma_service_1.PrismaService])
 ], TeachersService);
 //# sourceMappingURL=teachers.service.js.map

@@ -10,14 +10,13 @@ exports.TeachersModule = void 0;
 const common_1 = require("@nestjs/common");
 const teachers_controller_1 = require("./teachers.controller");
 const teachers_service_1 = require("./teachers.service");
-const sms_1 = require("../../common/service/sms");
 let TeachersModule = class TeachersModule {
 };
 exports.TeachersModule = TeachersModule;
 exports.TeachersModule = TeachersModule = __decorate([
     (0, common_1.Module)({
         controllers: [teachers_controller_1.TeachersController],
-        providers: [teachers_service_1.TeachersService, sms_1.EskizService]
+        providers: [teachers_service_1.TeachersService]
     })
 ], TeachersModule);
 //# sourceMappingURL=teachers.module.js.map

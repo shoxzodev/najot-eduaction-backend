@@ -1,23 +1,36 @@
-import { Injectable, OnModuleInit } from "@nestjs/common";
-import Redis from "ioredis";
+import { Injectable, Logger } from "@nestjs/common";
 
 @Injectable()
-export class RedisService implements OnModuleInit {
-    private clint: any;
-    onModuleInit() {
-        this.clint = new Redis({  
-            host:process.env.deploy == "PROD" ? process.env.REDIS_HOST : 'localhost'
-        })
-    }
-    async set(key: string, value: number){
-        await this.clint.set(key, value, "EX", 120)
+export class RedisService {
+    private readonly logger = new Logger(RedisService.name);
+    private storage = new Map<string, { value: any; expiresAt?: number }>();
+
+    constructor() {
+        this.logger.log("In-memory cache initialized (Redis connection disabled)");
     }
 
-    async get(key:string){  
-        return this.clint.get(key)
+    async set(key: string, value: any, ttlSeconds: number = 120): Promise<void> {
+        this.storage.set(key, {
+            value,
+            expiresAt: ttlSeconds ? Date.now() + ttlSeconds * 1000 : undefined,
+        });
     }
 
-    async del(key: string){
-        this.clint.del(key)
+    async get(key: string): Promise<any> {
+        const item = this.storage.get(key);
+        if (!item) {
+            return null;
+        }
+
+        if (item.expiresAt && Date.now() > item.expiresAt) {
+            this.storage.delete(key);
+            return null;
+        }
+
+        return item.value;
+    }
+
+    async del(key: string): Promise<void> {
+        this.storage.delete(key);
     }
 }

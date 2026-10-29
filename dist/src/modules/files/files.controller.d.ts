@@ -5,8 +5,8 @@ export declare class FilesController {
     getFiles(groupId: number): Promise<{
         lesson: {
             id: number;
-            topic: string;
             created_at: Date;
+            topic: string;
         };
         id: number;
         created_at: Date;

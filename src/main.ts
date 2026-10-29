@@ -10,9 +10,8 @@ async function bootstrap() {
   app.useGlobalPipes(new ValidationPipe({
     whitelist: true
   }))
-
+ 
   app.enableCors()
-
   app.setGlobalPrefix("api/v1")
 
   // Static fayllarni serve qilish (rasm va videolar)
