@@ -14,7 +14,7 @@ async function bootstrap() {
   app.enableCors({
   origin: [
     'http://localhost:5173',
-    'https://najot-eduaction.vercel.app/',
+    'https://najot-eduaction.vercel.app',
   ],
   methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
   credentials: true,
