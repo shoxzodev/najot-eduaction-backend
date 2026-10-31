@@ -8,13 +8,13 @@ export declare class TeachersController {
         success: boolean;
         data: {
             groups: string[];
-            id: number;
             phone: string;
             email: string;
             address: string;
+            full_name: string;
+            id: number;
             created_at: Date;
             photo: string | null;
-            full_name: string;
             GroupTeacher: {
                 Group: {
                     name: string;
@@ -38,8 +38,8 @@ export declare class TeachersController {
             room: string;
             student_count: number;
             students: {
-                id: number;
                 full_name: string;
+                id: number;
             }[];
         }[];
     }>;
@@ -60,13 +60,13 @@ export declare class TeachersController {
         success: boolean;
         data: {
             groups: string[];
-            id: number;
             phone: string;
             email: string;
             address: string;
+            full_name: string;
+            id: number;
             created_at: Date;
             photo: string | null;
-            full_name: string;
             GroupTeacher: {
                 Group: {
                     name: string;

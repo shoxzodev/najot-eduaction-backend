@@ -10,7 +10,14 @@ async function bootstrap() {
     app.useGlobalPipes(new common_1.ValidationPipe({
         whitelist: true
     }));
-    app.enableCors();
+    app.enableCors({
+        origin: [
+            'http://localhost:5173',
+            'https://najot-eduaction.vercel.app',
+        ],
+        methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
+        credentials: true,
+    });
     app.setGlobalPrefix("api/v1");
     app.useStaticAssets((0, path_1.join)(process.cwd(), 'src', 'uploads'), {
         prefix: '/files',
@@ -25,7 +32,7 @@ async function bootstrap() {
             persistAuthorization: true,
         }
     });
-    await app.listen(process.env.PORT ?? 3000);
+    await app.listen(process.env.PORT ?? 3000, '0.0.0.0');
 }
 bootstrap();
 //# sourceMappingURL=main.js.map

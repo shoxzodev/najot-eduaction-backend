@@ -26,7 +26,9 @@ __decorate([
 ], ChangePersonalDataDto.prototype, "email", void 0);
 __decorate([
     (0, swagger_1.ApiProperty)({ example: "+998775507614" }),
-    (0, class_validator_1.IsPhoneNumber)(),
+    (0, class_validator_1.Matches)(/^(\+?998)(90|91|93|94|95|97|98|99|88|33|77)\d{7}$|^(\+?82)(10|11|16|17|18|19)\d{7,8}$/, {
+        message: 'Invalid phone number. Supported countries: Uzbekistan (+998), South Korea (+82)',
+    }),
     __metadata("design:type", String)
 ], ChangePersonalDataDto.prototype, "phone", void 0);
 __decorate([
