@@ -4,6 +4,7 @@ import { CreateTeacherDto } from './dto/create.dto';
 import { UpdateTeacherDto } from './dto/update.dto';
 import * as bcrypt from "bcrypt"
 import { Status, TeacherGroupStatus } from '@prisma/client';
+import { retryWhen } from 'rxjs';
 
 @Injectable()
 export class TeachersService {
@@ -48,13 +49,12 @@ export class TeachersService {
     }
 
     async getMyGroups(teacherId: number) {
-
         const groups = await this.prisma.group.findMany({
             where: {
                 GroupTeacher:{
                     some:{
                         teacher_id:teacherId,
-                        status:TeacherGroupStatus.active
+                        status: TeacherGroupStatus.active
                     }
                 }
             },
@@ -90,7 +90,11 @@ export class TeachersService {
                     }
                 }
             }
-        })
+        });
+
+        console.log(groups)
+
+        return
 
         const dataFormatter = groups.map((el) => ({
             id: el.id,
@@ -235,8 +239,6 @@ export class TeachersService {
                 } : undefined
             }
         })
-
-        // await this.smsService.sendSms(payload.phone[0] == "+" ? payload.phone : "+" + payload.phone, `NajotEdu kabinetingiz https://najotedu.softwareengineer.uz/login.\n Login: ${payload.phone} Parol: ${payload.password}}`)
 
         return {
             success:true,

@@ -605,6 +605,7 @@ let GroupsService = class GroupsService {
                     monthDates.push({
                         day: currentDate.getDate(),
                         month: monthNames[currentDate.getMonth()],
+                        year: currentDate.getFullYear(),
                         isCompleted: completedDates.has(dateStr)
                     });
                 }
@@ -612,6 +613,7 @@ let GroupsService = class GroupsService {
             }
             schedules[i] = {
                 isActive,
+                year: monthStart.getFullYear(),
                 days: monthDates
             };
         }

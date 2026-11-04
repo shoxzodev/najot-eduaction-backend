@@ -668,7 +668,7 @@ export class GroupsService {
         let currentDate = new Date(start_date);
 
         for (let i = 1; i <= duration; i++) {
-            const monthDates = [] as { day: number; month: string; isCompleted: boolean }[];
+            const monthDates = [] as { day: number; month: string; year: number; isCompleted: boolean }[];
             const monthStart = new Date(currentDate);
             const endOfPeriod = new Date(currentDate);
             endOfPeriod.setMonth(endOfPeriod.getMonth() + 1);
@@ -682,6 +682,7 @@ export class GroupsService {
                     monthDates.push({
                         day: currentDate.getDate(),
                         month: monthNames[currentDate.getMonth()],
+                        year: currentDate.getFullYear(),
                         isCompleted: completedDates.has(dateStr)
                     });
                 }
@@ -689,6 +690,7 @@ export class GroupsService {
             }
             schedules[i] = {
                 isActive,
+                year: monthStart.getFullYear(),
                 days: monthDates
             };
         }

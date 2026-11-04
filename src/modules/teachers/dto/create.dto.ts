@@ -1,6 +1,6 @@
 import { ApiProperty } from "@nestjs/swagger"
 import { Transform } from "class-transformer"
-import { IsDateString, IsEmail, IsMobilePhone, IsOptional, IsString, Matches } from "class-validator"
+import { IsEmail, IsOptional, IsString, Matches } from "class-validator"
 
 
 export class CreateTeacherDto {
