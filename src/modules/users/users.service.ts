@@ -74,7 +74,7 @@ export class UsersService {
                                         full_name:true,
                                         email:true,
                                         phone:true,
-                                        photo:true
+                                        photo:true,
                                     }},
                                 );
 
@@ -110,7 +110,10 @@ export class UsersService {
 
             return {
                 success:true,
-                user:main[0],
+                user: {
+                    ...main[0],
+                    role:userData.role
+                },
                 group:normalizeGroup
             }
         } else if( userData.role == "STUDENT" ) {
@@ -146,7 +149,10 @@ export class UsersService {
 
         return {
             success:true,
-            user:parallel[0],
+            user: {
+                ...parallel[0],
+                role:userData.role
+            },
             group:normalizeGroup
         }
     } else if (userData.role == "ADMIN") {
@@ -161,8 +167,10 @@ export class UsersService {
 
         return {
             success:true,
-            user:admin,
-            group:[]
+            user: {
+                ...admin,
+                role:userData.role
+            }
         }
     } else {
         const superadmin = await this.prisma.user.findUnique({where:{id:userData.id} , select:{
@@ -177,8 +185,10 @@ export class UsersService {
 
         return {
             success:true,
-            user:superadmin,
-            group:[]
+            user: {
+                ...superadmin,
+                role:userData.role
+            }
         }
     }
   }
