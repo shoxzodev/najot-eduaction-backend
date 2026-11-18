@@ -7,12 +7,12 @@ export declare class UsersService {
     getAllAdmins(): Promise<{
         success: boolean;
         data: {
+            id: number;
             first_name: string;
             last_name: string;
+            role: import(".prisma/client").$Enums.Role;
             phone: string;
             email: string;
-            id: number;
-            role: import(".prisma/client").$Enums.Role;
             photo: string | null;
         }[];
     }>;
@@ -26,40 +26,24 @@ export declare class UsersService {
     }): Promise<{
         success: boolean;
         user: {
+            id: number;
             phone: string;
             email: string;
-            full_name: string;
-            id: number;
             photo: string | null;
-        } | null;
-        role: string;
-        groups: any;
-        group?: undefined;
-    } | {
-        success: boolean;
-        user: {
-            phone: string;
-            email: string;
             full_name: string;
-            id: number;
-            photo: string | null;
         } | null;
         group: any;
-        role?: undefined;
-        groups?: undefined;
     } | {
         success: boolean;
         user: {
+            id: number;
             first_name: string;
             last_name: string;
-            email: string;
-            id: number;
             role: import(".prisma/client").$Enums.Role;
+            email: string;
             photo: string | null;
         } | null;
-        role?: undefined;
-        groups?: undefined;
-        group?: undefined;
+        group: never[];
     }>;
     changeUserInfo(userData: {
         id: number;

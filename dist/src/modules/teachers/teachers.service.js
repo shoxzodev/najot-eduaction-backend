@@ -128,8 +128,6 @@ let TeachersService = class TeachersService {
                 }
             }
         });
-        console.log(groups);
-        return;
         const dataFormatter = groups.map((el) => ({
             id: el.id,
             name: el.name,

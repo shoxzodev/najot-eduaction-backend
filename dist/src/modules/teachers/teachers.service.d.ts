@@ -42,7 +42,7 @@ export declare class TeachersService {
                 full_name: string;
             }[];
         }[];
-    } | undefined>;
+    }>;
     getArchiveTeachers(): Promise<{
         success: boolean;
         data: {

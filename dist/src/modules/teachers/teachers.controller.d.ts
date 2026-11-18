@@ -42,7 +42,7 @@ export declare class TeachersController {
                 full_name: string;
             }[];
         }[];
-    } | undefined>;
+    }>;
     getMyProfile(req: any): Promise<{
         success: boolean;
         data: {

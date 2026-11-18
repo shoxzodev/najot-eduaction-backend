@@ -115,22 +115,28 @@ let UsersService = class UsersService {
                 .findMany({
                 where: { teacher_id: userData.id },
                 select: {
-                    Group: {}
+                    Group: {
+                        select: {
+                            id: true,
+                            name: true
+                        }
+                    }
                 }
             });
             const main = await Promise.all([teachers, teacherGroup]);
             const normalizeGroup = main[1].reduce((acc, item) => {
-                acc.push({
-                    id: item.Group.course_id,
-                    name: item.Group.name
-                });
+                if (item?.Group) {
+                    acc.push({
+                        id: item.Group.id,
+                        name: item.Group.name
+                    });
+                }
                 return acc;
             }, []);
             return {
                 success: true,
                 user: main[0],
-                role: userData.role,
-                groups: normalizeGroup
+                group: normalizeGroup
             };
         }
         else if (userData.role == "STUDENT") {
@@ -142,7 +148,7 @@ let UsersService = class UsersService {
                     photo: true
                 } });
             const studentGroup = this.prisma.studentGroup.findMany({ where: {
-                    id: userData.id
+                    student_id: userData.id
                 },
                 select: {
                     groups: {
@@ -155,7 +161,9 @@ let UsersService = class UsersService {
             });
             const parallel = await Promise.all([student, studentGroup]);
             const normalizeGroup = parallel[1].reduce((acc, item) => {
-                acc.push({ id: item.groups.id, name: item.groups.name });
+                if (item?.groups) {
+                    acc.push({ id: item.groups.id, name: item.groups.name });
+                }
                 return acc;
             }, []);
             return {
@@ -175,7 +183,8 @@ let UsersService = class UsersService {
                 } });
             return {
                 success: true,
-                user: admin
+                user: admin,
+                group: []
             };
         }
         else {
@@ -190,11 +199,13 @@ let UsersService = class UsersService {
                 } });
             return {
                 success: true,
-                user: superadmin
+                user: superadmin,
+                group: []
             };
         }
     }
     async changeUserInfo(userData, payload, file) {
+        const image = file ? file.filename : null;
         if (userData.role == "STUDENT") {
             const existStudent = await this.prisma.student.findUnique({ where: { id: userData.id }, select: {
                     email: true,
@@ -206,13 +217,12 @@ let UsersService = class UsersService {
             if (!verifyPassword)
                 throw new common_1.ConflictException("user's current password incorrect");
             const newPassword = bcrypt.hashSync(payload.new_password, 10);
-            const image = Date.now() + "." + file?.mimetype.split("/")[1];
             try {
                 await this.prisma.student.update({ where: { id: userData.id }, data: {
                         email: payload.email ? payload.email : existStudent?.email,
                         phone: payload.phone ? payload.phone : existStudent?.phone,
                         password: payload.new_password ? newPassword : existStudent?.password,
-                        photo: image ? image : payload.phone
+                        photo: image ? image : existStudent?.photo
                     } });
                 return {
                     success: true,
@@ -235,13 +245,12 @@ let UsersService = class UsersService {
             if (!verifyPassword)
                 throw new common_1.ConflictException("user's current password incorrect");
             const newPassword = bcrypt.hashSync(payload.new_password, 10);
-            const image = Date.now() + "." + file?.mimetype.split("/")[1];
             try {
-                await this.prisma.student.update({ where: { id: userData.id }, data: {
+                await this.prisma.teacher.update({ where: { id: userData.id }, data: {
                         email: payload.email ? payload.email : existTeacher?.email,
                         phone: payload.phone ? payload.phone : existTeacher?.phone,
                         password: payload.new_password ? newPassword : existTeacher?.password,
-                        photo: image ? image : payload.phone
+                        photo: image ? image : existTeacher?.photo
                     } });
                 return {
                     success: true,
@@ -264,13 +273,12 @@ let UsersService = class UsersService {
             if (!verifyPassword)
                 throw new common_1.ConflictException("user's current password incorrect");
             const newPassword = bcrypt.hashSync(payload.new_password, 10);
-            const image = Date.now() + "." + file?.mimetype.split("/")[1];
             try {
-                await this.prisma.student.update({ where: { id: userData.id }, data: {
+                await this.prisma.user.update({ where: { id: userData.id }, data: {
                         email: payload.email ? payload.email : existAdmin?.email,
                         phone: payload.phone ? payload.phone : existAdmin?.phone,
                         password: payload.new_password ? newPassword : existAdmin?.password,
-                        photo: image ? image : payload.phone
+                        photo: image ? image : existAdmin?.photo
                     } });
                 return {
                     success: true,

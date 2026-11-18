@@ -23,7 +23,6 @@ export class UsersService {
                 phone:true,
                 photo:true,
                 role:true,
-
             }
         })
 
@@ -87,7 +86,10 @@ export class UsersService {
                                         where:{teacher_id:userData.id},
                                         select:{
                                             Group:{
-
+                                                select: {
+                                                    id: true,
+                                                    name: true
+                                                }
                                             }
                                         }
                                     });
@@ -95,10 +97,12 @@ export class UsersService {
             const main = await Promise.all([ teachers, teacherGroup ]);
         
             const normalizeGroup = main[1].reduce((acc:any , item) => {
-                acc.push({
-                    id:item.Group.course_id,
-                    name:item.Group.name
-                })
+                if (item?.Group) {
+                    acc.push({
+                        id:item.Group.id,
+                        name:item.Group.name
+                    })
+                }
 
                 return acc
 
@@ -107,8 +111,7 @@ export class UsersService {
             return {
                 success:true,
                 user:main[0],
-                role:userData.role,
-                groups:normalizeGroup
+                group:normalizeGroup
             }
         } else if( userData.role == "STUDENT" ) {
             const student = this.prisma.student.findUnique({where:{id:userData.id} , select : { 
@@ -120,7 +123,7 @@ export class UsersService {
             }});
 
             const studentGroup = this.prisma.studentGroup.findMany({where:{
-                id:userData.id
+                student_id:userData.id
             },
             select: {
                 groups: {
@@ -134,7 +137,9 @@ export class UsersService {
 
         const parallel = await Promise.all([student , studentGroup])
         const normalizeGroup = parallel[1].reduce((acc:any , item) => {
-            acc.push({id:item.groups.id , name:item.groups.name})
+            if (item?.groups) {
+                acc.push({id:item.groups.id , name:item.groups.name})
+            }
 
             return acc
         } , [])
@@ -156,7 +161,8 @@ export class UsersService {
 
         return {
             success:true,
-            user:admin
+            user:admin,
+            group:[]
         }
     } else {
         const superadmin = await this.prisma.user.findUnique({where:{id:userData.id} , select:{
@@ -171,7 +177,8 @@ export class UsersService {
 
         return {
             success:true,
-            user:superadmin
+            user:superadmin,
+            group:[]
         }
     }
   }
@@ -179,6 +186,8 @@ export class UsersService {
 
   // new feature ( now user can change the personal info ):
   async changeUserInfo(userData:{id:number , role:string } , payload:ChangePersonalDataDto , file?: Express.Multer.File) {
+    const image = file ? file.filename : null;
+
     if(userData.role == "STUDENT") {
         const existStudent = await this.prisma.student.findUnique({where:{id:userData.id} , select:{
             email:true,
@@ -194,14 +203,13 @@ export class UsersService {
             throw new ConflictException("user's current password incorrect")
 
         const newPassword = bcrypt.hashSync(payload.new_password as string , 10);
-        const image = Date.now() + "." + file?.mimetype.split("/")[1];
 
         try {
             await this.prisma.student.update({where:{id:userData.id} , data:{
                     email:payload.email ? payload.email : existStudent?.email,
                     phone:payload.phone ? payload.phone : existStudent?.phone,
                     password:payload.new_password ? newPassword : existStudent?.password,
-                    photo: image ? image : payload.phone
+                    photo: image ? image : existStudent?.photo
                 }})
             
             return {
@@ -228,14 +236,13 @@ export class UsersService {
             throw new ConflictException("user's current password incorrect")
 
         const newPassword = bcrypt.hashSync(payload.new_password as string , 10);
-        const image = Date.now() + "." + file?.mimetype.split("/")[1];
 
         try {
-            await this.prisma.student.update({where:{id:userData.id} , data:{
+            await this.prisma.teacher.update({where:{id:userData.id} , data:{
                     email:payload.email ? payload.email : existTeacher?.email,
                     phone:payload.phone ? payload.phone : existTeacher?.phone,
                     password:payload.new_password ? newPassword : existTeacher?.password,
-                    photo: image ? image : payload.phone
+                    photo: image ? image : existTeacher?.photo
                 }})
             
             return {
@@ -261,14 +268,13 @@ export class UsersService {
             throw new ConflictException("user's current password incorrect")
 
         const newPassword = bcrypt.hashSync(payload.new_password as string , 10);
-        const image = Date.now() + "." + file?.mimetype.split("/")[1];
 
         try {
-            await this.prisma.student.update({where:{id:userData.id} , data:{
+            await this.prisma.user.update({where:{id:userData.id} , data:{
                     email:payload.email ? payload.email : existAdmin?.email,
                     phone:payload.phone ? payload.phone : existAdmin?.phone,
                     password:payload.new_password ? newPassword : existAdmin?.password,
-                    photo: image ? image : payload.phone
+                    photo: image ? image : existAdmin?.photo
                 }})
             
             return {
