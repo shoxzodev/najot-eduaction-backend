@@ -75,6 +75,7 @@ export class UsersService {
                                         email:true,
                                         phone:true,
                                         photo:true,
+                                        created_at:true
                                     }},
                                 );
 
@@ -122,7 +123,8 @@ export class UsersService {
                 full_name:true,
                 email:true,
                 phone:true,
-                photo:true
+                photo:true,
+                created_at:true
             }});
 
             const studentGroup = this.prisma.studentGroup.findMany({where:{
@@ -162,7 +164,8 @@ export class UsersService {
             last_name:true,
             email:true,
             photo:true,
-            role:true
+            role:true,            
+            created_at:true
         }});
 
         return {
@@ -180,7 +183,8 @@ export class UsersService {
             phone:true,
             email:true,
             photo:true,
-            role:true
+            role:true,
+            created_at:true
         }});
 
         return {
